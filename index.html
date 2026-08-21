@@ -176,7 +176,7 @@
 </div>
 
 <script>
-    // Firebase Configuration sahihi
+    // Firebase Configuration sahihi na salama
     const firebaseConfig = {
       apiKey: "AIzaSyCtZRJc9EaBYZJ9V7ysEF4Ylo-MJmzG_w0",
       authDomain: "orderingproductand-maintenance.firebaseapp.com",
@@ -187,10 +187,10 @@
       appId: "1:710532394085:web:874f8c9724be3851fb2a8c"
     };
 
-    // Initialize Firebase kwanza kabisa kabla ya app kuanza
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = app.auth();
-    const db = app.database();
+    // Initialize Firebase kwanza kabisa kabla ya kutumia auth au db
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
     function show(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
