@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ordering Product & Maintenance Service</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Firebase SDKs Compat v9 -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
     <style>
         :root { --primary: #0056b3; --sidebar: #2c3e50; --success: #28a745; --danger: #dc3545; --warning: #ffc107; --dark: #343a40; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -169,16 +175,19 @@
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-
 <script>
+    // Firebase Configuration sahihi
     const firebaseConfig = {
-      databaseURL: "https://orderingproductand-maintenance-default-rtdb.firebaseio.com/",
-      projectId: "orderingproductand-maintenance"
+      apiKey: "AIzaSyCtZRJc9EaBYZJ9V7ysEF4Ylo-MJmzG_w0",
+      authDomain: "orderingproductand-maintenance.firebaseapp.com",
+      databaseURL: "https://orderingproductand-maintenance-default-rtdb.firebaseio.com",
+      projectId: "orderingproductand-maintenance",
+      storageBucket: "orderingproductand-maintenance.firebasestorage.app",
+      messagingSenderId: "710532394085",
+      appId: "1:710532394085:web:874f8c9724be3851fb2a8c"
     };
 
+    // Initialize Firebase kwanza kabisa kabla ya app kuanza
     const app = firebase.initializeApp(firebaseConfig);
     const auth = app.auth();
     const db = app.database();
