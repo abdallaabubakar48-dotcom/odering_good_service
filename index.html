@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordering Product & Maintenance Service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #0056b3; --sidebar: #2c3e50; --success: #28a745; --danger: #dc3545; --warning: #ffc107; --dark: #343a40; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        #sidebar { width: 260px; background: var(--sidebar); color: white; display: none; overflow-y: auto; flex-shrink: 0; }
+        .sidebar-brand { padding: 20px; font-size: 1.1em; font-weight: bold; background: #1a252f; text-align: center; }
+        .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #34495e; display: flex; align-items: center; justify-content: space-between; }
+        .menu-item:hover { background: #34495e; }
+        .dropdown { background: #1a252f; display: none; padding-left: 15px; }
+        .dropdown .menu-item { border: none; padding: 12px 20px; font-size: 0.9em; }
+
+        #main-container { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        #topbar { height: 60px; background: white; border-bottom: 1px solid #ddd; display: none; justify-content: flex-end; align-items: center; padding: 0 20px; gap: 20px; }
+        .user-profile-section { display: flex; align-items: center; gap: 10px; }
+        .user-profile-section img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .topbar-btn { background: none; border: none; cursor: pointer; font-weight: 600; color: #333; display: flex; align-items: center; gap: 5px; padding: 8px 12px; border-radius: 5px; width: auto; margin: 0; }
+        .topbar-btn:hover { background: #f1f1f1; }
+        .topbar-btn.logout-btn { color: var(--danger); }
+
+        #content { flex-grow: 1; padding: 30px; display: flex; justify-content: center; align-items: center; overflow-y: auto; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 5px; }
+        button:hover { opacity: 0.9; }
+        
+        .page { display: none; } 
+        .active { display: block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9em; }
+        th { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+    <div class="sidebar-brand"><i class="fa fa-boxes"></i> Ordering & Maintenance</div>
+    
+    <!-- User / Mtendaji Menu -->
+    <div id="menuUser" style="display:none;">
+        <div class="menu-item" onclick="toggleDrop('userDrop')">
+            <span><i class="fa fa-cash-register"></i> Mauzo & Manunuzi</span>
+            <i class="fa fa-chevron-down"></i>
+        </div>
+        <div id="userDrop" class="dropdown">
+            <div class="menu-item" onclick="show('pagePOS')"><i class="fa fa-shopping-cart"></i> Mauzo (POS)</div>
+            <div class="menu-item" onclick="show('pagePurchases')"><i class="fa fa-truck-loading"></i> Rekodi Manunuzi</div>
+            <div class="menu-item" onclick="show('pageExpenses')"><i class="fa fa-receipt"></i> Gharama za Uendeshaji</div>
+        </div>
+    </div>
+
+    <!-- Admin Menu -->
+    <div id="menuAdmin" style="display:none;">
+        <div class="menu-item" onclick="toggleDrop('adminDrop')">
+            <span><i class="fa fa-shield-alt"></i> Usimamizi Mkuu</span>
+            <i class="fa fa-chevron-down"></i>
+        </div>
+        <div id="adminDrop" class="dropdown">
+            <div class="menu-item" onclick="show('pageInventory')"><i class="fa fa-box"></i> Orodha ya Vifaa (Stock)</div>
+            <div class="menu-item" onclick="show('pagePOS')"><i class="fa fa-shopping-cart"></i> Mauzo (POS)</div>
+            <div class="menu-item" onclick="show('pagePurchases')"><i class="fa fa-truck-loading"></i> Manunuzi</div>
+            <div class="menu-item" onclick="show('pageExpenses')"><i class="fa fa-receipt"></i> Gharama za Uendeshaji</div>
+            <div class="menu-item" onclick="show('pageFinancials')"><i class="fa fa-chart-line"></i> Faida na Hasara</div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div id="main-container">
+    <div id="topbar">
+        <div class="user-profile-section">
+            <img id="topUserImg" src="https://via.placeholder.com/40" alt="Profile">
+            <span id="topUserName" style="font-weight: 600; font-size: 0.9em; color: #333;">Mtumiaji</span>
+        </div>
+        <button class="topbar-btn logout-btn" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Logout</button>
+    </div>
+
+    <div id="content">
+        <!-- LOGIN PAGE -->
+        <div id="loginPage" class="card active page">
+            <h2>Ingia kwenye Mfumo</h2>
+            <input type="email" id="logEmail" placeholder="Email Address">
+            <input type="password" id="logPass" placeholder="Password">
+            <button onclick="loginUser()">Ingia Sasa</button>
+            <p style="text-align: center; margin-top: 15px;">Huna akaunti? <span onclick="show('signupPage')" style="color:blue; cursor:pointer; font-weight:bold;">Jisajili</span></p>
+        </div>
+
+        <!-- SIGNUP PAGE -->
+        <div id="signupPage" class="card page">
+            <h2>Jisajili Mtumiaji</h2>
+            <input type="text" id="regName" placeholder="Jina Kamili">
+            <select id="userRole">
+                <option value="user">User (Mtendaji wa Kawaida)</option>
+                <option value="admin">Admin (Msimamizi Mkuu)</option>
+            </select>
+            <input type="email" id="signEmail" placeholder="Email Address">
+            <input type="password" id="signPass" placeholder="Password (angalau herufi 6)">
+            <button onclick="signupUser()">Kamilisha Usajili</button>
+            <p style="text-align: center; margin-top: 15px;"><span onclick="show('loginPage')" style="color:blue; cursor:pointer; font-weight:bold;">Rudi Login</span></p>
+        </div>
+
+        <!-- INVENTORY PAGE (Admin Only) -->
+        <div id="pageInventory" class="card page" style="max-width: 800px;">
+            <h2>Orodha ya Vifaa na Stoku</h2>
+            <input type="text" id="invName" placeholder="Jina la Kifaa / Bidhaa">
+            <input type="number" id="invBuyPrice" placeholder="Bei ya Kununua (Tsh)">
+            <input type="number" id="invSellPrice" placeholder="Bei ya Kuuzia (Tsh)">
+            <input type="number" id="invQty" placeholder="Idadi ya Awali (Stock Balance)">
+            <button onclick="addInventoryItem()" style="background: var(--success);">Ongeza Kifaa Kipya</button>
+            
+            <h3 style="margin-top: 20px;">Vifaa Vilivyopo Stoku</h3>
+            <table>
+                <thead>
+                    <tr><th>Kifaa</th><th>Nunua</th><th>Uuza</th><th>Salio</th></tr>
+                </thead>
+                <tbody id="inventoryTableBody">
+                    <tr><td colspan="4">Inapakia...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PURCHASES PAGE -->
+        <div id="pagePurchases" class="card page">
+            <h2>Rekodi Manunuzi ya Vifaa</h2>
+            <select id="purItemSelect"><option value="">Chagua Kifaa</option></select>
+            <input type="number" id="purQty" placeholder="Idadi Iliyonunuliwa">
+            <input type="number" id="purTotalCost" placeholder="Jumla ya Gharama Zilizotumika (Tsh)">
+            <button onclick="recordPurchase()">Hifadhi Manunuzi</button>
+        </div>
+
+        <!-- POS / SALES PAGE -->
+        <div id="pagePOS" class="card page">
+            <h2>Moduli ya Mauzo (POS)</h2>
+            <select id="posItemSelect" onchange="updatePOSPrice()"><option value="">Chagua Kifaa cha Kuuza</option></select>
+            <input type="text" id="posCustomer" placeholder="Jina la Mteja">
+            <input type="number" id="posQty" placeholder="Idadi Inayouzwa" oninput="calculateTotal()">
+            <input type="number" id="posPrice" placeholder="Bei ya Kuuzia kwa Kimoja" readonly>
+            <p id="posTotalDisplay" style="font-weight: bold; font-size: 1.1em; color: var(--primary);">Jumla: Tsh 0</p>
+            <button onclick="processSale()" style="background: var(--success);">Thibitisha Mauzo</button>
+        </div>
+
+        <!-- EXPENSES PAGE -->
+        <div id="pageExpenses" class="card page">
+            <h2>Gharama za Uendeshaji</h2>
+            <input type="text" id="expDesc" placeholder="Maelezo ya Gharama (mfano: Usafiri, Ufungaji)">
+            <input type="number" id="expAmount" placeholder="Kiasi Kilichotumika (Tsh)">
+            <button onclick="recordExpense()" style="background: var(--danger);">Hifadhi Gharama</button>
+        </div>
+
+        <!-- FINANCIALS / P&L PAGE (Admin Only) -->
+        <div id="pageFinancials" class="card page" style="max-width: 700px;">
+            <h2>Ripoti ya Faida na Hasara (P&L)</h2>
+            <div id="financialSummary" style="background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <p><strong>Jumla ya Mapato (Revenue):</strong> <span id="repRevenue">0</span> Tsh</p>
+                <p><strong>Gharama za Vifaa Vilivyouzwa (COGS):</strong> <span id="repCOGS">0</span> Tsh</p>
+                <p><strong>Gharama za Ziada (Expenses):</strong> <span id="repExpenses">0</span> Tsh</p>
+                <hr>
+                <p style="font-size: 1.2em;"><strong>Faida Halisi (Net Profit):</strong> <span id="repNetProfit" style="color: var(--success);">0</span> Tsh</p>
+            </div>
+            <button onclick="loadFinancialReport()">Sasisha Ripoti</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+      databaseURL: "https://orderingproductand-maintenance-default-rtdb.firebaseio.com/",
+      projectId: "orderingproductand-maintenance"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = app.auth();
+    const db = app.database();
+
+    function show(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'pageInventory') loadInventory();
+        if(id === 'pagePOS' || id === 'pagePurchases') loadItemDropdowns();
+        if(id === 'pageFinancials') loadFinancialReport();
+    }
+
+    function toggleDrop(id) {
+        let el = document.getElementById(id);
+        el.style.display = el.style.display === "block" ? "none" : "block";
+    }
+
+    async function signupUser() {
+        const name = document.getElementById('regName').value.trim();
+        const role = document.getElementById('userRole').value;
+        const email = document.getElementById('signEmail').value.trim();
+        const pass = document.getElementById('signPass').value.trim();
+
+        if(!name || !email || !pass) return alert("Jaza sehemu zote wazi!");
+        if(pass.length < 6) return alert("Password iwe na angalau herufi 6!");
+
+        try {
+            const res = await auth.createUserWithEmailAndPassword(email, pass);
+            await db.ref('users/' + res.user.uid).set({ name, role, email });
+            alert("Usajili umefanikiwa!");
+            show('loginPage');
+        } catch(e) { alert(e.message); }
+    }
+
+    function loginUser() {
+        const email = document.getElementById('logEmail').value.trim();
+        const pass = document.getElementById('logPass').value.trim();
+        if(!email || !pass) return alert("Jaza email na password!");
+
+        auth.signInWithEmailAndPassword(email, pass)
+        .then(res => {
+            document.getElementById('sidebar').style.display = 'block';
+            document.getElementById('topbar').style.display = 'flex';
+            checkRoleAndRoute(res.user.uid);
+        }).catch(e => alert(e.message));
+    }
+
+    function checkRoleAndRoute(uid) {
+        db.ref('users/' + uid).once('value', snap => {
+            const data = snap.val();
+            if(data) {
+                document.getElementById('topUserName').innerText = data.name;
+                document.getElementById('menuUser').style.display = 'none';
+                document.getElementById('menuAdmin').style.display = 'none';
+
+                if(data.role === 'admin') {
+                    document.getElementById('menuAdmin').style.display = 'block';
+                    show('pageInventory');
+                } else {
+                    document.getElementById('menuUser').style.display = 'block';
+                    show('pagePOS');
+                }
+            }
+        });
+    }
+
+    // INVENTORY MANAGEMENT
+    function addInventoryItem() {
+        const name = document.getElementById('invName').value.trim();
+        const buyPrice = parseFloat(document.getElementById('invBuyPrice').value);
+        const sellPrice = parseFloat(document.getElementById('invSellPrice').value);
+        const qty = parseInt(document.getElementById('invQty').value);
+
+        if(!name || isNaN(buyPrice) || isNaN(sellPrice) || isNaN(qty)) {
+            return alert("Tafadhali jaza taarifa zote kwa usahihi!");
+        }
+
+        db.ref('inventory/').push({ name, buyPrice, sellPrice, qty })
+        .then(() => {
+            alert("Kifaa kimeongezwa stoku!");
+            document.getElementById('invName').value = '';
+            document.getElementById('invBuyPrice').value = '';
+            document.getElementById('invSellPrice').value = '';
+            document.getElementById('invQty').value = '';
+            loadInventory();
+        });
+    }
+
+    function loadInventory() {
+        db.ref('inventory/').on('value', snap => {
+            const tbody = document.getElementById('inventoryTableBody');
+            tbody.innerHTML = '';
+            snap.forEach(child => {
+                const item = child.val();
+                tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.buyPrice}</td><td>${item.sellPrice}</td><td>${item.qty}</td></tr>`;
+            });
+        });
+    }
+
+    function loadItemDropdowns() {
+        db.ref('inventory/').once('value', snap => {
+            const posSelect = document.getElementById('posItemSelect');
+            const purSelect = document.getElementById('purItemSelect');
+            posSelect.innerHTML = '<option value="">Chagua Kifaa cha Kuuza</option>';
+            purSelect.innerHTML = '<option value="">Chagua Kifaa</option>';
+
+            snap.forEach(child => {
+                const item = child.val();
+                const opt = `<option value="${child.key}" data-price="${item.sellPrice}" data-stock="${item.qty}">${item.name} (Salio: ${item.qty})</option>`;
+                posSelect.innerHTML += opt;
+                purSelect.innerHTML += `<option value="${child.key}">${item.name}</option>`;
+            });
+        });
+    }
+
+    function updatePOSPrice() {
+        const select = document.getElementById('posItemSelect');
+        const price = select.options[select.selectedIndex].getAttribute('data-price') || 0;
+        document.getElementById('posPrice').value = price;
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        const qty = parseFloat(document.getElementById('posQty').value) || 0;
+        const price = parseFloat(document.getElementById('posPrice').value) || 0;
+        document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh " + (qty * price).toLocaleString();
+    }
+
+    // PURCHASING
+    function recordPurchase() {
+        const itemId = document.getElementById('purItemSelect').value;
+        const qty = parseInt(document.getElementById('purQty').value);
+        const totalCost = parseFloat(document.getElementById('purTotalCost').value);
+
+        if(!itemId || isNaN(qty) || isNaN(totalCost)) return alert("Jaza taarifa zote za manunuzi!");
+
+        db.ref('purchases/').push({ itemId, qty, totalCost, date: new Date().toISOString() });
+
+        db.ref('inventory/' + itemId).once('value', snap => {
+            const currentQty = snap.val().qty || 0;
+            db.ref('inventory/' + itemId).update({ qty: currentQty + qty }).then(() => {
+                alert("Manunuzi yamerekodiwa na stoku imeongezeka!");
+            });
+        });
+    }
+
+    // POS SALES & AUTO STOCK DEDUCTION
+    function processSale() {
+        const select = document.getElementById('posItemSelect');
+        const itemId = select.value;
+        const customer = document.getElementById('posCustomer').value.trim();
+        const qty = parseInt(document.getElementById('posQty').value);
+        const price = parseFloat(document.getElementById('posPrice').value);
+        const currentStock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock') || 0);
+
+        if(!itemId || !customer || isNaN(qty) || qty <= 0) return alert("Weka taarifa sahihi za mauzo!");
+        if(qty > currentStock) return alert("Idadi unayouza ni kubwa kuliko salio lililopo stoku!");
+
+        db.ref('sales/').push({
+            itemId, customer, qty, totalAmount: qty * price, date: new Date().toISOString()
+        });
+
+        db.ref('inventory/' + itemId).update({ qty: currentStock - qty }).then(() => {
+            alert("✅ Mauzo yamekamilika na stoku imepunguzwa!");
+            loadItemDropdowns();
+        });
+    }
+
+    // EXPENSES
+    function recordExpense() {
+        const desc = document.getElementById('expDesc').value.trim();
+        const amount = parseFloat(document.getElementById('expAmount').value);
+
+        if(!desc || isNaN(amount)) return alert("Jaza maelezo na kiasi cha gharama!");
+
+        db.ref('expenses/').push({ desc, amount, date: new Date().toISOString() }).then(() => {
+            alert("Gharama imerekodiwa!");
+            document.getElementById('expDesc').value = '';
+            document.getElementById('expAmount').value = '';
+        });
+    }
+
+    // FINANCIAL CALCULATIONS (P&L)
+    async function loadFinancialReport() {
+        let totalRevenue = 0;
+        let totalCOGS = 0;
+        let totalExpenses = 0;
+
+        const invSnap = await db.ref('inventory/').once('value');
+        const invMap = {};
+        invSnap.forEach(c => { invMap[c.key] = c.val(); });
+
+        const salesSnap = await db.ref('sales/').once('value');
+        salesSnap.forEach(c => {
+            const s = c.val();
+            totalRevenue += s.totalAmount;
+            if(invMap[s.itemId]) {
+                totalCOGS += (invMap[s.itemId].buyPrice * s.qty);
+            }
+        });
+
+        const expSnap = await db.ref('expenses/').once('value');
+        expSnap.forEach(c => {
+            totalExpenses += c.val().amount;
+        });
+
+        const netProfit = totalRevenue - totalCOGS - totalExpenses;
+
+        document.getElementById('repRevenue').innerText = totalRevenue.toLocaleString();
+        document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString();
+        document.getElementById('repExpenses').innerText = totalExpenses.toLocaleString();
+        
+        const netEl = document.getElementById('repNetProfit');
+        netEl.innerText = netProfit.toLocaleString();
+        netEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function logout() { auth.signOut().then(() => location.reload()); }
+</script>
+</body>
+</html>
