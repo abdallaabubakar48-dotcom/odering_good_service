@@ -60,9 +60,16 @@
         th { background-color: #f8fafc; color: var(--dark); font-weight: 600; }
         tr:hover { background-color: #f8fafc; }
 
-        /* Profile Upload Preview Box */
-        .profile-upload-box { text-align: center; margin: 15px 0; }
-        .profile-upload-box img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); margin-bottom: 10px; }
+        /* Profile Full Page Styles */
+        .profile-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .profile-header-banner { width: 100%; height: 140px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 12px 12px 0 0; position: relative; margin-bottom: 60px; }
+        .profile-avatar-wrapper { position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); text-align: center; }
+        .profile-avatar-wrapper img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: white; }
+        .profile-body { width: 100%; padding: 0 20px 20px 20px; box-sizing: border-box; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; width: 100%; }
+        .info-card { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .info-card span { font-size: 0.8em; color: #64748b; display: block; margin-bottom: 4px; }
+        .info-card strong { font-size: 1.05em; color: var(--dark); }
     </style>
 </head>
 <body>
@@ -155,23 +162,42 @@
             </div>
         </div>
 
-        <!-- PROFILE MANAGEMENT PAGE -->
+        <!-- PROFILE FULL PAGE -->
         <div id="pageProfile" class="page">
-            <div class="card">
-                <h2>Taarifa za Profaili Yangu</h2>
-                <p class="auth-subtitle">Sasisha jina lako na picha moja kwa moja kutoka kwenye kifaa chako</p>
-                
-                <div class="profile-upload-box">
-                    <img id="profilePreviewImg" src="https://via.placeholder.com/90" alt="Picha ya Profaili"><br>
-                    <label style="background: #e2e8f0; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600; display: inline-block; color: #334155;">
-                        <i class="fa fa-camera"></i> Chagua Picha kwenye Kifaa
-                        <input type="file" id="profileFile" accept="image/*" style="display: none;" onchange="previewImage(event)">
-                    </label>
-                </div>
+            <div class="card" style="max-width: 650px; padding: 0; overflow: hidden;">
+                <div class="profile-container">
+                    <div class="profile-header-banner">
+                        <div class="profile-avatar-wrapper">
+                            <img id="profilePreviewImg" src="https://via.placeholder.com/110" alt="Picha ya Profaili">
+                        </div>
+                    </div>
+                    <div class="profile-body">
+                        <h2 style="text-align: center; margin-top: 15px; margin-bottom: 5px;">Profaili Yangu</h2>
+                        <p class="auth-subtitle" style="text-align: center;">Dhibiti taarifa zako binafsi na picha ya utambulisho</p>
+                        
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <label style="background: #e2e8f0; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: 600; display: inline-block; color: #334155; transition: background 0.2s;">
+                                <i class="fa fa-camera"></i> Badilisha Picha ya Kifaa
+                                <input type="file" id="profileFile" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                            </label>
+                        </div>
 
-                <label style="font-size: 0.85em; font-weight: bold;">Jina Kamili:</label>
-                <input type="text" id="profName" placeholder="Jina lako kamili">
-                <button onclick="updateProfileData()" style="background: var(--success);">Sasisha Profaili</button>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <span>Aina ya Akaunti (Role)</span>
+                                <strong id="dispUserRole" style="text-transform: uppercase;">-</strong>
+                            </div>
+                            <div class="info-card">
+                                <span>Barua Pepe (Email)</span>
+                                <strong id="dispUserEmail" style="word-break: break-all;">-</strong>
+                            </div>
+                        </div>
+
+                        <label style="font-size: 0.85em; font-weight: bold; display: block; text-align: left; margin-top: 15px;">Jina Kamili:</label>
+                        <input type="text" id="profName" placeholder="Jina lako kamili">
+                        <button onclick="updateProfileData()" style="background: var(--success); margin-top: 15px;">Hifadhi Mabadiliko</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -293,7 +319,6 @@
         el.style.display = el.style.display === "block" ? "none" : "block";
     }
 
-    // Convert uploaded image file to base64 so it fits local storage / database smoothly
     function previewImage(event) {
         const file = event.target.files[0];
         if (file) {
@@ -317,7 +342,7 @@
 
         try {
             const res = await auth.createUserWithEmailAndPassword(email, pass);
-            await db.ref('users/' + res.user.uid).set({ name, role, email, photoUrl: "https://via.placeholder.com/40" });
+            await db.ref('users/' + res.user.uid).set({ name, role, email, photoUrl: "https://via.placeholder.com/110" });
             alert("Usajili umefanikiwa! Sasa unaweza kuingia.");
             show('loginPage');
         } catch(e) { alert("Hitilafu wakati wa kusajili: " + e.message); }
@@ -334,6 +359,14 @@
             document.getElementById('topbar').style.display = 'flex';
             checkRoleAndRoute(res.user.uid);
         }).catch(e => alert("Imeshindikana kuingia: Angalia email au password yako. (" + e.message + ")"));
+    }
+
+    function logout() {
+        auth.signOut().then(() => {
+            document.getElementById('sidebar').style.display = 'none';
+            document.getElementById('topbar').style.display = 'none';
+            show('loginPage');
+        });
     }
 
     function checkRoleAndRoute(uid) {
@@ -362,6 +395,8 @@
     function loadProfileInputs() {
         if(currentUserData) {
             document.getElementById('profName').value = currentUserData.name || '';
+            document.getElementById('dispUserRole').innerText = currentUserData.role || '-';
+            document.getElementById('dispUserEmail').innerText = currentUserData.email || '-';
             if(currentUserData.photoUrl) {
                 document.getElementById('profilePreviewImg').src = currentUserData.photoUrl;
                 base64ImageString = currentUserData.photoUrl;
@@ -410,7 +445,6 @@
         }
     }
 
-    // INVENTORY MANAGEMENT
     function addInventoryItem() {
         const name = document.getElementById('invName').value.trim();
         const buyPrice = parseFloat(document.getElementById('invBuyPrice').value);
@@ -472,7 +506,6 @@
         document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh " + (qty * price).toLocaleString();
     }
 
-    // PURCHASING
     function recordPurchase() {
         const itemId = document.getElementById('purItemSelect').value;
         const qty = parseInt(document.getElementById('purQty').value);
@@ -492,7 +525,6 @@
         });
     }
 
-    // POS SALES & AUTO STOCK DEDUCTION
     function processSale() {
         const select = document.getElementById('posItemSelect');
         const itemId = select.value;
@@ -518,7 +550,6 @@
         });
     }
 
-    // EXPENSES
     function recordExpense() {
         const desc = document.getElementById('expDesc').value.trim();
         const amount = parseFloat(document.getElementById('expAmount').value);
@@ -532,7 +563,6 @@
         });
     }
 
-    // FINANCIAL CALCULATIONS (P&L)
     let globalNetProfitData = {};
     async function loadFinancialReport() {
         let totalRevenue = 0;
@@ -569,7 +599,6 @@
         netEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
     }
 
-    // OFFICIAL PRINTABLE HTML REPORT WITH BRANDING & COLORS
     function printOfficialReport() {
         const rev = (globalNetProfitData.totalRevenue || 0).toLocaleString();
         const cogs = (globalNetProfitData.totalCOGS || 0).toLocaleString();
@@ -593,46 +622,34 @@
                     th { background-color: #4361ee; color: white; }
                     tr:nth-child(even) { background-color: #f8fafc; }
                     .summary-box { margin-top: 30px; background: #f1f5f9; padding: 20px; border-radius: 8px; border-left: 5px solid #2ec4b6; }
-                    .summary-box h3 { margin: 0 0 10px; color: #0f172a; }
-                    .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+                    .summary-box h3 { margin-top: 0; }
                 </style>
             </head>
             <body>
                 <div class="header">
-                    <h1>ORDERING PRODUCT & MAINTENANCE SERVICE</h1>
-                    <p>Ripoti Rasmi ya Uendeshaji na Tathmini ya Kifedha (Profit & Loss Statement)</p>
+                    <h1>Ordering Product & Maintenance Service</h1>
+                    <p>Ripoti Rasmi ya Uendeshaji na Kifedha (P&L Statement)</p>
                 </div>
                 <div class="meta">
                     <span>Tarehe ya Ripoti: ${currentDate}</span>
-                    <span>Hali ya Mfumo: Imethibitishwa (Verified)</span>
+                    <span>Hali ya Mfumo: Imethibitishwa</span>
                 </div>
                 <table>
-                    <thead>
-                        <tr><th>Aina ya Muamala / Maelezo</th><th>Kiasi (Tsh)</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>Jumla ya Mapato (Total Revenue)</strong></td><td>${rev} Tsh</td></tr>
-                        <tr><td><strong>Gharama za Vifaa Vilivyouzwa (COGS)</strong></td><td>${cogs} Tsh</td></tr>
-                        <tr><td><strong>Gharama za Uendeshaji (Operating Expenses)</strong></td><td>${exp} Tsh</td></tr>
-                    </tbody>
+                    <tr><th> Kipengele cha Kifedha</th><th>Kiasi (Tsh)</th></tr>
+                    <tr><td>Jumla ya Mapato (Revenue)</td><td>${rev}</td></tr>
+                    <tr><td>Gharama za Bidhaa/Vifaa Vilivyouzwa (COGS)</td><td>${cogs}</td></tr>
+                    <tr><td>Gharama za Uendeshaji (Expenses)</td><td>${exp}</td></tr>
                 </table>
                 <div class="summary-box">
-                    <h3>Faida Halisi (Net Profit): ${net} Tsh</h3>
-                    <p>Ripoti hii imetolewa moja kwa moja kutoka kwenye mfumo wa Ordering Product & Maintenance Service.</p>
+                    <h3>Muhtasari wa Faida Halisi</h3>
+                    <p style="font-size: 18px; margin: 0;"><strong>Faida Halisi (Net Profit): ${net} Tsh</strong></p>
                 </div>
-                <div class="footer">
-                    <p>&copy; ${new Date().getFullYear()} Ordering & Maintenance Service - Haki Zote Zimehifadhiwa.</p>
-                </div>
-                <script>
-                    window.onload = function() { window.print(); }
-                <\/script>
             </body>
             </html>
         `);
         printWindow.document.close();
+        printWindow.print();
     }
-
-    function logout() { auth.signOut().then(() => location.reload()); }
 </script>
 </body>
 </html>
