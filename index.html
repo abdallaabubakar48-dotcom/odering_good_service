@@ -62,7 +62,17 @@
             font-size: 0.9em; 
         }
         .menu-item:hover { background: #334155; }
-        .dropdown { background: #0f172a; display: none; }
+        
+        /* DROPDOWN ANIMATION Imeboreshwa */
+        .dropdown { 
+            background: #0f172a; 
+            max-height: 0; /* Kwa ajili ya animation */
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .dropdown.show {
+            max-height: 300px; /* Urefu unaoruhusu menu kufunguka vizuri */
+        }
         .dropdown .menu-item { padding-left: 35px; border: none; font-size: 0.85em; }
 
         /* MAIN CONTAINER */
@@ -127,10 +137,14 @@
         button { width: 100%; padding: 11px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em; margin-top: 10px; transition: opacity 0.2s; }
         button:hover { opacity: 0.9; }
         
+        /* PAGE ANIMATION YAKO MPYA YENYE SLIDE */
         .page { display: none; width: 100%; justify-content: center; } 
-        .active { display: flex; animation: fadeIn 0.25s ease-in-out; }
+        .active { display: flex; animation: slideIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateX(40px); } 
+            to { opacity: 1; transform: translateX(0); } 
+        }
 
         .table-responsive { width: 100%; overflow-x: auto; margin-top: 12px; }
         table { width: 100%; border-collapse: collapse; min-width: 400px; border-radius: 6px; overflow: hidden; }
@@ -153,6 +167,13 @@
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.4);
             z-index: 999;
+        }
+
+        /* PRINT STYLES - Huficha pembeni wakati wa kupush print ripoti */
+        @media print {
+            #sidebar, #topbar, button { display: none !important; }
+            #content { padding: 0; overflow: visible; }
+            .card { box-shadow: none; border: 1px solid #000; max-width: 100%; }
         }
 
         @media (min-width: 769px) {
@@ -243,6 +264,7 @@
     </div>
 
     <div id="content">
+        <!-- LOGIN PAGE -->
         <div id="loginPage" class="page active">
             <div class="auth-wrapper">
                 <div class="auth-banner">
@@ -260,6 +282,7 @@
             </div>
         </div>
 
+        <!-- SIGNUP PAGE -->
         <div id="signupPage" class="page">
             <div class="auth-wrapper">
                 <div class="auth-banner" style="background: linear-gradient(135deg, #2ec4b6, #20a4f3);">
@@ -282,6 +305,7 @@
             </div>
         </div>
 
+        <!-- PROFILE PAGE -->
         <div id="pageProfile" class="page">
             <div class="card" style="max-width: 550px; padding: 0; overflow: hidden;">
                 <div class="profile-container">
@@ -320,6 +344,7 @@
             </div>
         </div>
 
+        <!-- CHANGE PASSWORD PAGE -->
         <div id="pageChangePass" class="page">
             <div class="card">
                 <h2>Badilisha Neno la Siri</h2>
@@ -329,6 +354,7 @@
             </div>
         </div>
 
+        <!-- INVENTORY PAGE -->
         <div id="pageInventory" class="page">
             <div class="card" style="max-width: 750px;">
                 <h2>Orodha ya Vifaa na Stoku</h2>
@@ -352,6 +378,7 @@
             </div>
         </div>
 
+        <!-- PURCHASES PAGE -->
         <div id="pagePurchases" class="page">
             <div class="card">
                 <h2>Rekodi Manunuzi</h2>
@@ -362,6 +389,7 @@
             </div>
         </div>
 
+        <!-- POS PAGE -->
         <div id="pagePOS" class="page">
             <div class="card">
                 <h2>Moduli ya Mauzo (POS)</h2>
@@ -374,6 +402,7 @@
             </div>
         </div>
 
+        <!-- EXPENSES PAGE -->
         <div id="pageExpenses" class="page">
             <div class="card">
                 <h2>Gharama za Uendeshaji</h2>
@@ -383,6 +412,7 @@
             </div>
         </div>
 
+        <!-- FINANCIALS / P&L PAGE -->
         <div id="pageFinancials" class="page">
             <div class="card" style="max-width: 700px;">
                 <h2>Ripoti ya Faida na Hasara (P&L)</h2>
@@ -403,6 +433,7 @@
 </div>
 
 <script>
+    // Configuration yako ya Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCtZRJc9EaBYZJ9V7ysEF4Ylo-MJmzG_w0",
       authDomain: "orderingproductand-maintenance.firebaseapp.com",
@@ -442,9 +473,10 @@
         overlay.classList.toggle('active');
     }
 
+    /* DROPDOWN LOGIC YENYE ANIMATION */
     function toggleDrop(id) {
         let el = document.getElementById(id);
-        el.style.display = el.style.display === "block" ? "none" : "block";
+        el.classList.toggle('show');
     }
 
     function previewImage(event) {
@@ -640,104 +672,112 @@
                 alert("Manunuzi yamerekodiwa!");
                 document.getElementById('purQty').value = '';
                 document.getElementById('purTotalCost').value = '';
+                loadItemDropdowns(); // Refresh dropdown info
             });
         });
     }
 
+    /* KODI ILIYOKUWA IMEKATIKA IMEKAMILISHWA HAPA CHINI 👇 */
+
+    // 1. Kuthibitisha Mauzo (Process Sale)
     function processSale() {
         const select = document.getElementById('posItemSelect');
         const itemId = select.value;
         const customer = document.getElementById('posCustomer').value.trim();
         const qty = parseInt(document.getElementById('posQty').value);
         const price = parseFloat(document.getElementById('posPrice').value);
-        const currentStock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock') || 0);
+        const stock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock'));
 
-        if(!itemId || !customer || isNaN(qty) || qty <= 0) return alert("Weka taarifa sahihi!");
-        if(qty > currentStock) return alert("Idadi unayouza ni kubwa kuliko salio lililopo stoku!");
+        if(!itemId || isNaN(qty) || qty <= 0) return alert("Jaza taarifa sahihi za mauzo (idadi inapaswa kuzidi sifuri)!");
+        if(qty > stock) return alert("Huna mzigo wa kutosha stoku! Salio lako ni: " + stock);
 
-        db.ref('sales/').push({ itemId, customer, qty, totalAmount: qty * price, date: new Date().toISOString() });
-        db.ref('inventory/' + itemId).update({ qty: currentStock - qty }).then(() => {
-            alert("✅ Mauzo yamekamilika!");
-            document.getElementById('posCustomer').value = '';
-            document.getElementById('posQty').value = '';
-            document.getElementById('posPrice').value = '';
-            document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh 0";
-            loadItemDropdowns();
+        // Fetch original item to get buyPrice for Profit calc
+        db.ref('inventory/' + itemId).once('value', snap => {
+            const item = snap.val();
+            const totalAmount = qty * price;
+            const buyPrice = item.buyPrice || 0;
+
+            // Push to sales history
+            db.ref('sales/').push({
+                itemId,
+                itemName: item.name,
+                customer: customer || 'Mteja wa Kawaida',
+                qty,
+                price,
+                buyPrice, // MUHIMU KWA KUKOKOTOA FAIDA (COGS)
+                totalAmount,
+                date: new Date().toISOString()
+            });
+
+            // Update remaining inventory
+            db.ref('inventory/' + itemId).update({ qty: item.qty - qty }).then(() => {
+                alert("Mauzo yamekamilika kikamilifu!");
+                document.getElementById('posCustomer').value = '';
+                document.getElementById('posQty').value = '';
+                document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh 0";
+                loadItemDropdowns(); // Refresh stock kwenye dropdown
+            });
         });
     }
 
+    // 2. Kurekodi Gharama za uendeshaji (Expenses)
     function recordExpense() {
         const desc = document.getElementById('expDesc').value.trim();
         const amount = parseFloat(document.getElementById('expAmount').value);
-        if(!desc || isNaN(amount)) return alert("Jaza maelezo na kiasi!");
-
-        db.ref('expenses/').push({ desc, amount, date: new Date().toISOString() }).then(() => {
-            alert("Gharama imerekodiwa!");
+        
+        if(!desc || isNaN(amount)) return alert("Tafadhali jaza maelezo na kiasi cha gharama sahihi!");
+        
+        db.ref('expenses/').push({
+            desc,
+            amount,
+            date: new Date().toISOString()
+        }).then(() => {
+            alert("Gharama imehifadhiwa kikamilifu!");
             document.getElementById('expDesc').value = '';
             document.getElementById('expAmount').value = '';
         });
     }
 
-    let globalNetProfitData = {};
+    // 3. Kukokotoa Faida na Hasara (P&L)
     async function loadFinancialReport() {
-        let totalRevenue = 0, totalCOGS = 0, totalExpenses = 0;
-        const invSnap = await db.ref('inventory/').once('value');
-        const invMap = {};
-        invSnap.forEach(c => { invMap[c.key] = c.val(); });
+        let totalRevenue = 0;
+        let totalCOGS = 0;
+        let totalExpenses = 0;
 
-        const salesSnap = await db.ref('sales/').once('value');
-        salesSnap.forEach(c => {
-            const s = c.val();
-            totalRevenue += s.totalAmount;
-            if(invMap[s.itemId]) totalCOGS += (invMap[s.itemId].buyPrice * s.qty);
-        });
+        try {
+            // Chukua Mauzo yote
+            const salesSnap = await db.ref('sales/').once('value');
+            salesSnap.forEach(child => {
+                const sale = child.val();
+                totalRevenue += (sale.totalAmount || 0);
+                totalCOGS += ((sale.qty || 0) * (sale.buyPrice || 0)); // Cost of Goods Sold
+            });
 
-        const expSnap = await db.ref('expenses/').once('value');
-        expSnap.forEach(c => { totalExpenses += c.val().amount; });
+            // Chukua Gharama zote
+            const expSnap = await db.ref('expenses/').once('value');
+            expSnap.forEach(child => {
+                totalExpenses += (child.val().amount || 0);
+            });
 
-        const netProfit = totalRevenue - totalCOGS - totalExpenses;
-        globalNetProfitData = { totalRevenue, totalCOGS, totalExpenses, netProfit };
-
-        document.getElementById('repRevenue').innerText = totalRevenue.toLocaleString();
-        document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString();
-        document.getElementById('repExpenses').innerText = totalExpenses.toLocaleString();
-        
-        const netEl = document.getElementById('repNetProfit');
-        netEl.innerText = netProfit.toLocaleString();
-        netEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+            // Weka taarifa kwenye UI
+            document.getElementById('repRevenue').innerText = totalRevenue.toLocaleString();
+            document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString();
+            document.getElementById('repExpenses').innerText = totalExpenses.toLocaleString();
+            
+            // Faida (Net Profit)
+            const netProfit = totalRevenue - totalCOGS - totalExpenses;
+            const profitEl = document.getElementById('repNetProfit');
+            profitEl.innerText = netProfit.toLocaleString();
+            profitEl.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+            
+        } catch(e) {
+            console.error("Hitilafu kwenye ripoti: ", e);
+        }
     }
 
+    // 4. Kufanya Print (Huficha menus za pembeni sababu nimeongeza CSS rule @media print)
     function printOfficialReport() {
-        const rev = (globalNetProfitData.totalRevenue || 0).toLocaleString();
-        const cogs = (globalNetProfitData.totalCOGS || 0).toLocaleString();
-        const exp = (globalNetProfitData.totalExpenses || 0).toLocaleString();
-        const net = (globalNetProfitData.netProfit || 0).toLocaleString();
-        const currentDate = new Date().toLocaleDateString();
-
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
-            <html><head><title>Ripoti Rasmi</title>
-            <style>
-                body { font-family: sans-serif; padding: 20px; color: #1e293b; }
-                h1 { color: #4361ee; font-size: 20px; text-align: center; }
-                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-                th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; font-size: 13px; }
-                th { background: #4361ee; color: white; }
-            </style></head>
-            <body>
-                <h1>Ordering Product & Maintenance Service</h1>
-                <p><b>Tarehe:</b> ${currentDate}</p>
-                <table>
-                    <tr><th>Kipengele</th><th>Kiasi (Tsh)</th></tr>
-                    <tr><td>Jumla ya Mapato</td><td>${rev}</td></tr>
-                    <tr><td>Gharama za Vifaa (COGS)</td><td>${cogs}</td></tr>
-                    <tr><td>Gharama za Ziada</td><td>${exp}</td></tr>
-                    <tr><td><b>Faida Halisi</b></td><td><b>${net}</b></td></tr>
-                </table>
-            </body></html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
+        window.print();
     }
 </script>
 </body>
