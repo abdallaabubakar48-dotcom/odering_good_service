@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ordering Product & Maintenance Service</title>
-    <!-- FontAwesome icons & Google Fonts -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Firebase SDKs Compat v9 -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -14,23 +12,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
-        :root { 
-            --primary: #4f46e5; 
-            --primary-dark: #4338ca; 
-            --sidebar-bg: #0f172a; 
-            --sidebar-hover: #1e293b;
-            --success: #10b981; 
-            --danger: #ef4444; 
-            --warning: #f59e0b; 
-            --dark: #0f172a; 
-            --bg-light: #f8fafc; 
-            --border-color: #e2e8f0;
-        }
-        
+        :root { --primary: #4361ee; --primary-dark: #3a0ca3; --sidebar-bg: #1e293b; --success: #2ec4b6; --danger: #e71d36; --warning: #ff9f1c; --dark: #0f172a; --bg-light: #f1f5f9; }
         * { box-sizing: border-box; }
         
         body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg-light); 
             margin: 0; 
             display: flex; 
@@ -39,75 +25,45 @@
             color: #334155; 
         }
         
-        /* OVERLAY FOR MOBILE SIDEBAR */
-        #sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(2px);
-            z-index: 998;
-            transition: opacity 0.3s ease;
-        }
-        #sidebar-overlay.active { display: block; }
-
-        /* SIDEBAR (Modern GUI Drawer) */
+        /* SIDEBAR */
         #sidebar { 
-            width: 280px; 
+            width: 260px; 
             background: var(--sidebar-bg); 
-            color: #94a3b8; 
+            color: white; 
             display: none; 
             flex-direction: column;
             flex-shrink: 0; 
             height: 100vh;
             overflow-y: auto; 
-            box-shadow: 4px 0 25px rgba(0,0,0,0.08); 
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            z-index: 999; 
+            box-shadow: 4px 0 10px rgba(0,0,0,0.05); 
+            transition: all 0.3s ease; 
+            z-index: 1000; 
         }
 
         .sidebar-brand { 
-            padding: 24px 20px; 
-            font-size: 1.1em; 
-            font-weight: 700; 
-            color: #ffffff;
-            background: #090d16; 
+            padding: 20px; 
+            font-size: 1.05em; 
+            font-weight: bold; 
+            background: #0f172a; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            border-bottom: 1px solid #1e293b; 
-        }
-        .sidebar-brand i.fa-boxes { color: var(--primary); }
-
-        .menu-category {
-            font-size: 0.7em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #64748b;
-            padding: 16px 20px 6px 20px;
-            font-weight: 700;
+            border-bottom: 1px solid #334155; 
         }
 
         .menu-item { 
-            padding: 12px 20px; 
+            padding: 14px 20px; 
             cursor: pointer; 
+            border-bottom: 1px solid #283548; 
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
-            transition: all 0.2s ease; 
-            font-size: 0.88em; 
-            font-weight: 500;
-            color: #cbd5e1;
-            margin: 4px 12px;
-            border-radius: 8px;
+            transition: background 0.2s; 
+            font-size: 0.9em; 
         }
-        .menu-item i:first-child { width: 22px; color: #94a3b8; transition: color 0.2s; }
-        .menu-item:hover { background: var(--sidebar-hover); color: #ffffff; }
-        .menu-item:hover i:first-child { color: var(--primary); }
-        
-        .dropdown { background: rgba(0,0,0,0.2); display: none; border-radius: 8px; margin: 2px 12px; padding: 4px 0; }
-        .dropdown .menu-item { padding-left: 20px; margin: 2px 8px; font-size: 0.83em; color: #94a3b8; }
-        .dropdown .menu-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .menu-item:hover { background: #334155; }
+        .dropdown { background: #0f172a; display: none; }
+        .dropdown .menu-item { padding-left: 35px; border: none; font-size: 0.85em; }
 
         /* MAIN CONTAINER */
         #main-container { 
@@ -122,45 +78,32 @@
         
         /* TOPBAR */
         #topbar { 
-            height: 70px; 
+            height: 65px; 
             background: white; 
-            border-bottom: 1px solid var(--border-color); 
+            border-bottom: 1px solid #e2e8f0; 
             display: none; 
             justify-content: space-between; 
             align-items: center; 
-            padding: 0 25px; 
+            padding: 0 20px; 
             flex-shrink: 0; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
 
-        .topbar-left { display: flex; align-items: center; gap: 16px; }
-        .mobile-menu-toggle { 
-            background: #f1f5f9; 
-            border: none; 
-            font-size: 1.1em; 
-            cursor: pointer; 
-            color: var(--dark); 
-            display: none; 
-            padding: 10px; 
-            border-radius: 10px;
-            transition: background 0.2s;
-        }
-        .mobile-menu-toggle:hover { background: #e2e8f0; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .mobile-menu-toggle { background: none; border: none; font-size: 1.3em; cursor: pointer; color: var(--dark); display: none; padding: 5px; }
 
-        .user-profile-section { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 6px 12px; border-radius: 30px; transition: background 0.2s; }
-        .user-profile-section:hover { background: #f8fafc; }
-        .user-profile-section img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .user-profile-section { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .user-profile-section img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
         
-        .topbar-right { display: flex; align-items: center; gap: 12px; }
-        .topbar-btn { background: #f8fafc; border: 1px solid var(--border-color); cursor: pointer; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; font-size: 0.85em; }
-        .topbar-btn:hover { background: #f1f5f9; color: var(--primary); border-color: #cbd5e1; }
-        .topbar-btn.logout-btn { color: var(--danger); border-color: #fee2e2; background: #fff5f5; }
-        .topbar-btn.logout-btn:hover { background: #fee2e2; }
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+        .topbar-btn { background: none; border: none; cursor: pointer; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 6px; transition: background 0.2s; font-size: 0.85em; }
+        .topbar-btn:hover { background: #f1f5f9; color: var(--primary); }
+        .topbar-btn.logout-btn { color: var(--danger); }
+        .topbar-btn.logout-btn:hover { background: #ffeeef; }
 
         /* CONTENT AREA */
         #content { 
             flex-grow: 1; 
-            padding: 25px; 
+            padding: 15px; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -168,99 +111,95 @@
             width: 100%; 
         }
         
-        /* AUTHENTICATION UI */
-        .auth-wrapper { display: flex; width: 900px; max-width: 100%; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.06); border: 1px solid var(--border-color); }
-        .auth-banner { flex: 1; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 45px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .auth-banner h1 { font-size: 2em; margin-bottom: 12px; font-weight: 700; }
-        .auth-banner p { font-size: 0.95em; line-height: 1.5; opacity: 0.9; }
-        .auth-form-container { flex: 1; padding: 45px; display: flex; flex-direction: column; justify-content: center; }
+        .auth-wrapper { display: flex; width: 850px; max-width: 100%; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .auth-banner { flex: 1; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 35px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .auth-banner h1 { font-size: 1.8em; margin-bottom: 10px; }
+        .auth-banner p { font-size: 0.9em; line-height: 1.4; opacity: 0.9; }
+        .auth-form-container { flex: 1; padding: 35px; display: flex; flex-direction: column; justify-content: center; }
         
-        /* CARDS AND FORMS */
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); width: 100%; max-width: 550px; box-sizing: border-box; border: 1px solid var(--border-color); }
-        .card h2 { margin-top: 0; color: var(--dark); font-size: 1.5em; margin-bottom: 6px; font-weight: 700; }
-        .auth-subtitle { color: #64748b; font-size: 0.9em; margin-bottom: 24px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); width: 100%; max-width: 500px; box-sizing: border-box; }
+        .card h2 { margin-top: 0; color: var(--dark); font-size: 1.4em; margin-bottom: 6px; }
+        .auth-subtitle { color: #64748b; font-size: 0.85em; margin-bottom: 18px; }
         
-        label.form-label { font-size: 0.82em; font-weight: 600; color: #475569; display: block; margin-bottom: 6px; margin-top: 12px; }
-        input, select { width: 100%; padding: 12px 14px; margin: 4px 0; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 0.9em; outline: none; background: #fff; color: #1e293b; transition: all 0.2s; }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+        input, select { width: 100%; padding: 10px 12px; margin: 6px 0; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.9em; outline: none; background: #fff; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1); }
         
-        button.action-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95em; margin-top: 16px; transition: background 0.2s, transform 0.1s; }
-        button.action-btn:hover { background: var(--primary-dark); }
-        button.action-btn:active { transform: scale(0.99); }
+        button { width: 100%; padding: 11px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em; margin-top: 10px; transition: opacity 0.2s; }
+        button:hover { opacity: 0.9; }
         
         .page { display: none; width: 100%; justify-content: center; } 
-        .active { display: flex; animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .active { display: flex; animation: fadeIn 0.25s ease-in-out; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* TABLES */
-        .table-responsive { width: 100%; overflow-x: auto; margin-top: 16px; border-radius: 10px; border: 1px solid var(--border-color); }
-        table { width: 100%; border-collapse: collapse; min-width: 450px; }
-        th, td { border-bottom: 1px solid var(--border-color); padding: 12px 16px; text-align: left; font-size: 0.88em; }
-        th { background-color: #f8fafc; color: var(--dark); font-weight: 700; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #fcfcfc; }
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 12px; }
+        table { width: 100%; border-collapse: collapse; min-width: 400px; border-radius: 6px; overflow: hidden; }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; font-size: 0.85em; }
+        th { background-color: #f8fafc; color: var(--dark); font-weight: 600; }
+        tr:hover { background-color: #f8fafc; }
 
-        /* PROFILE GUI */
         .profile-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .profile-header-banner { width: 100%; height: 120px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 12px 12px 0 0; position: relative; margin-bottom: 55px; }
-        .profile-avatar-wrapper { position: absolute; bottom: -45px; left: 50%; transform: translateX(-50%); text-align: center; }
-        .profile-avatar-wrapper img { width: 95px; height: 95px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.08); background: white; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; width: 100%; }
-        .info-card { background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); }
-        .info-card span { font-size: 0.75em; color: #64748b; display: block; margin-bottom: 4px; text-transform: uppercase; font-weight: 600; }
+        .profile-header-banner { width: 100%; height: 100px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 10px 10px 0 0; position: relative; margin-bottom: 45px; }
+        .profile-avatar-wrapper { position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); text-align: center; }
+        .profile-avatar-wrapper img { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background: white; }
+        .info-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 12px 0; width: 100%; }
+        .info-card { background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .info-card span { font-size: 0.75em; color: #64748b; display: block; margin-bottom: 2px; }
         .info-card strong { font-size: 0.9em; color: var(--dark); word-break: break-all; }
 
-        /* RESPONSIVE MEDIA QUERIES */
+        #sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+        }
+
         @media (min-width: 769px) {
-            #sidebar { display: flex !important; transform: none !important; position: relative !important; }
-            #topbar { display: flex !important; }
-            .mobile-menu-toggle { display: none !important; }
-            #sidebar-overlay { display: none !important; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            #content { padding: 25px; }
         }
 
         @media (max-width: 768px) {
-            .mobile-menu-toggle { display: flex; align-items: center; justify-content: center; }
-            #topbar { display: flex !important; }
+            .mobile-menu-toggle { display: block; }
             
             #sidebar {
                 position: fixed;
                 top: 0;
-                left: 0;
+                left: -280px;
                 height: 100vh;
-                transform: translateX(-100%);
+                width: 280px;
+                box-shadow: 5px 0 15px rgba(0,0,0,0.2);
             }
             #sidebar.mobile-open {
-                transform: translateX(0);
+                left: 0;
+            }
+            #sidebar-overlay.active {
+                display: block;
             }
 
             .auth-wrapper { flex-direction: column; }
-            .auth-banner { padding: 30px 20px; }
-            .auth-form-container { padding: 30px 20px; }
-            .card { padding: 20px 16px; }
-            .info-grid { grid-template-columns: 1fr; }
+            .auth-banner { padding: 25px 20px; }
+            .auth-form-container { padding: 25px 20px; }
+            .card { padding: 20px 15px; }
             #topUserName { display: none; }
         }
     </style>
 </head>
 <body>
 
-<!-- Mobile Dark Overlay Backdrop -->
 <div id="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
 
-<!-- SIDEBAR NAVIGATION -->
 <div id="sidebar">
     <div class="sidebar-brand">
         <span><i class="fa fa-boxes"></i> Ordering & Maint.</span>
         <i class="fa fa-times" style="cursor:pointer;" onclick="toggleMobileSidebar()"></i>
     </div>
     
-    <div class="menu-category" style="margin-top: 10px;">Moduli Kuu</div>
-    
     <div id="menuUser" style="display:none;">
         <div class="menu-item" onclick="toggleDrop('userDrop')">
             <span><i class="fa fa-cash-register"></i> Mauzo & Manunuzi</span>
-            <i class="fa fa-chevron-down" style="font-size: 0.75em;"></i>
+            <i class="fa fa-chevron-down"></i>
         </div>
         <div id="userDrop" class="dropdown">
             <div class="menu-item" onclick="show('pagePOS')"><i class="fa fa-shopping-cart"></i> Mauzo (POS)</div>
@@ -272,7 +211,7 @@
     <div id="menuAdmin" style="display:none;">
         <div class="menu-item" onclick="toggleDrop('adminDrop')">
             <span><i class="fa fa-shield-alt"></i> Usimamizi Mkuu</span>
-            <i class="fa fa-chevron-down" style="font-size: 0.75em;"></i>
+            <i class="fa fa-chevron-down"></i>
         </div>
         <div id="adminDrop" class="dropdown">
             <div class="menu-item" onclick="show('pageInventory')"><i class="fa fa-box"></i> Orodha ya Vifaa</div>
@@ -283,14 +222,12 @@
         </div>
     </div>
 
-    <div class="menu-category">Mipangilio</div>
-    <div style="margin-bottom: 20px;">
+    <div style="margin-top: auto; border-top: 1px solid #283548;">
         <div class="menu-item" onclick="show('pageProfile')"><i class="fa fa-user-edit"></i> Profaili Yangu</div>
         <div class="menu-item" onclick="show('pageChangePass')"><i class="fa fa-key"></i> Badilisha Password</div>
     </div>
 </div>
 
-<!-- MAIN VIEWPORT CONTAINER -->
 <div id="main-container">
     <div id="topbar">
         <div class="topbar-left">
@@ -306,62 +243,45 @@
     </div>
 
     <div id="content">
-        <!-- LOGIN PAGE -->
         <div id="loginPage" class="page active">
             <div class="auth-wrapper">
                 <div class="auth-banner">
                     <h1><i class="fa fa-tools"></i> Ordering & Maint.</h1>
-                    <p>Mfumo wa kisasa wa kusimamia huduma za matengenezo, mauzo, na stoku kwa urahisi na usalama.</p>
+                    <p>Mfumo wa kusimamia huduma za matengenezo, mauzo, na stoku kwa urahisi.</p>
                 </div>
                 <div class="auth-form-container">
                     <h2>Karibu Tena</h2>
-                    <p class="auth-subtitle">Weka taarifa zako kuingia kwenye mfumo</p>
-                    
-                    <label class="form-label">Barua Pepe (Email)</label>
-                    <input type="email" id="logEmail" placeholder="mfano@email.com">
-                    
-                    <label class="form-label">Neno la Siri (Password)</label>
-                    <input type="password" id="logPass" placeholder="******">
-                    
-                    <button class="action-btn" onclick="loginUser()">Ingia Sasa</button>
-                    <p style="text-align: center; margin-top: 18px; color: #64748b; font-size: 0.85em;">Huna akaunti? <span onclick="show('signupPage')" style="color:var(--primary); cursor:pointer; font-weight:700;">Jisajili hapa</span></p>
+                    <p class="auth-subtitle">Ingiza taarifa zako kuendelea</p>
+                    <input type="email" id="logEmail" placeholder="Barua Pepe (Email)">
+                    <input type="password" id="logPass" placeholder="Neno la Siri (Password)">
+                    <button onclick="loginUser()">Ingia Sasa</button>
+                    <p style="text-align: center; margin-top: 15px; color: #64748b; font-size: 0.85em;">Huna akaunti? <span onclick="show('signupPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Jisajili hapa</span></p>
                 </div>
             </div>
         </div>
 
-        <!-- SIGNUP PAGE -->
         <div id="signupPage" class="page">
             <div class="auth-wrapper">
-                <div class="auth-banner" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <div class="auth-banner" style="background: linear-gradient(135deg, #2ec4b6, #20a4f3);">
                     <h1>Jiunge Nasi</h1>
-                    <p>Fungua akaunti mpya ya mfumo ili uanze kufanya shughuli zako.</p>
+                    <p>Fungua akaunti mpya ya mfumo.</p>
                 </div>
                 <div class="auth-form-container">
                     <h2>Fungua Akaunti</h2>
                     <p class="auth-subtitle">Jaza taarifa zako hapa chini</p>
-                    
-                    <label class="form-label">Jina Kamili</label>
-                    <input type="text" id="regName" placeholder="Jina lako kamili">
-                    
-                    <label class="form-label">Aina ya Mtumiaji (Role)</label>
+                    <input type="text" id="regName" placeholder="Jina Kamili">
                     <select id="userRole">
                         <option value="user">User (Mtendaji)</option>
                         <option value="admin">Admin (Msimamizi Mkuu)</option>
                     </select>
-                    
-                    <label class="form-label">Barua Pepe (Email)</label>
-                    <input type="email" id="signEmail" placeholder="mfano@email.com">
-                    
-                    <label class="form-label">Neno la Siri (Password)</label>
-                    <input type="password" id="signPass" placeholder="Angalau herufi 6">
-                    
-                    <button class="action-btn" onclick="signupUser()">Kamilisha Usajili</button>
-                    <p style="text-align: center; margin-top: 18px; color: #64748b; font-size: 0.85em;">Una akaunti tayari? <span onclick="show('loginPage')" style="color:var(--primary); cursor:pointer; font-weight:700;">Rudi Uingie</span></p>
+                    <input type="email" id="signEmail" placeholder="Barua Pepe (Email)">
+                    <input type="password" id="signPass" placeholder="Neno la Siri (angalau herufi 6)">
+                    <button onclick="signupUser()">Kamilisha Usajili</button>
+                    <p style="text-align: center; margin-top: 15px; color: #64748b; font-size: 0.85em;">Una akaunti? <span onclick="show('loginPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Rudi Uingie</span></p>
                 </div>
             </div>
         </div>
 
-        <!-- PROFILE PAGE -->
         <div id="pageProfile" class="page">
             <div class="card" style="max-width: 550px; padding: 0; overflow: hidden;">
                 <div class="profile-container">
@@ -370,13 +290,13 @@
                             <img id="profilePreviewImg" src="https://via.placeholder.com/100" alt="Profaili">
                         </div>
                     </div>
-                    <div style="width: 100%; padding: 0 25px 25px 25px; box-sizing: border-box;">
-                        <h2 style="text-align: center; margin-top: 20px; font-size: 1.35em;">Profaili Yangu</h2>
-                        <p class="auth-subtitle" style="text-align: center;">Dhibiti taarifa zako binafsi na picha</p>
+                    <div style="width: 100%; padding: 0 20px 20px 20px; box-sizing: border-box;">
+                        <h2 style="text-align: center; margin-top: 15px; font-size: 1.3em;">Profaili Yangu</h2>
+                        <p class="auth-subtitle" style="text-align: center;">Dhibiti taarifa zako</p>
                         
-                        <div style="text-align: center; margin-bottom: 20px;">
-                            <label style="background: #f1f5f9; border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.82em; font-weight: 600; display: inline-block; color: #334155; transition: background 0.2s;">
-                                <i class="fa fa-camera"></i> Badilisha Picha ya Profaili
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <label style="background: #e2e8f0; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8em; font-weight: 600; display: inline-block; color: #334155;">
+                                <i class="fa fa-camera"></i> Badilisha Picha
                                 <input type="file" id="profileFile" accept="image/*" style="display: none;" onchange="previewImage(event)">
                             </label>
                         </div>
@@ -392,146 +312,90 @@
                             </div>
                         </div>
 
-                        <label class="form-label">Jina Kamili:</label>
+                        <label style="font-size: 0.8em; font-weight: bold; display: block; margin-top: 10px;">Jina Kamili:</label>
                         <input type="text" id="profName" placeholder="Jina lako kamili">
-                        <button class="action-btn" onclick="updateProfileData()" style="background: var(--success); margin-top: 16px;">Hifadhi Mabadiliko</button>
+                        <button onclick="updateProfileData()" style="background: var(--success); margin-top: 12px;">Hifadhi Mabadiliko</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- CHANGE PASSWORD PAGE -->
         <div id="pageChangePass" class="page">
-            <div class="card" style="max-width: 480px;">
+            <div class="card">
                 <h2>Badilisha Neno la Siri</h2>
-                <p class="auth-subtitle">Weka neno jipya la siri lenye usalama thabiti</p>
-                
-                <label class="form-label">Neno Jipya la Siri</label>
-                <input type="password" id="newPass" placeholder="Angalau herufi 6">
-                
-                <button class="action-btn" onclick="changePassword()" style="background: var(--warning); color: #0f172a;">Badilisha Sasa</button>
+                <p class="auth-subtitle">Weka neno jipya la siri lenye usalama</p>
+                <input type="password" id="newPass" placeholder="Neno jipya la siri (angalau herufi 6)">
+                <button onclick="changePassword()" style="background: var(--warning); color: #0f172a;">Badilisha Sasa</button>
             </div>
         </div>
 
-        <!-- INVENTORY PAGE -->
         <div id="pageInventory" class="page">
-            <div class="card" style="max-width: 780px;">
+            <div class="card" style="max-width: 750px;">
                 <h2>Orodha ya Vifaa na Stoku</h2>
-                <p class="auth-subtitle">Weka na udhibiti bidhaa au vifaa vinavyopatikana</p>
+                <input type="text" id="invName" placeholder="Jina la Kifaa / Bidhaa">
+                <input type="number" id="invBuyPrice" placeholder="Bei ya Kununua (Tsh)">
+                <input type="number" id="invSellPrice" placeholder="Bei ya Kuuzia (Tsh)">
+                <input type="number" id="invQty" placeholder="Idadi ya Awali (Stock Balance)">
+                <button onclick="addInventoryItem()" style="background: var(--success);">Ongeza Kifaa Kipya</button>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div>
-                        <label class="form-label">Jina la Kifaa / Bidhaa</label>
-                        <input type="text" id="invName" placeholder="Jina la bidhaa">
-                    </div>
-                    <div>
-                        <label class="form-label">Idadi ya Awali (Stock Balance)</label>
-                        <input type="number" id="invQty" placeholder="0">
-                    </div>
-                    <div>
-                        <label class="form-label">Bei ya Kununua (Tsh)</label>
-                        <input type="number" id="invBuyPrice" placeholder="0">
-                    </div>
-                    <div>
-                        <label class="form-label">Bei ya Kuuzia (Tsh)</label>
-                        <input type="number" id="invSellPrice" placeholder="0">
-                    </div>
-                </div>
-                <button class="action-btn" onclick="addInventoryItem()" style="background: var(--success); margin-top: 14px;">Ongeza Kifaa Kipya</button>
-                
-                <h3 style="margin-top: 25px; font-size: 1.05em; color: var(--dark);">Vifaa Vilivyopo Stoku</h3>
+                <h3 style="margin-top: 20px; font-size: 1em; color: var(--dark);">Vifaa Vilivyopo Stoku</h3>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr><th>Kifaa</th><th>Nunua (Tsh)</th><th>Uuza (Tsh)</th><th>Salio</th></tr>
                         </thead>
                         <tbody id="inventoryTableBody">
-                            <tr><td colspan="4" style="text-align: center; color: #64748b;">Inapakia taarifa...</td></tr>
+                            <tr><td colspan="4">Inapakia...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- PURCHASES PAGE -->
         <div id="pagePurchases" class="page">
-            <div class="card" style="max-width: 500px;">
+            <div class="card">
                 <h2>Rekodi Manunuzi</h2>
-                <p class="auth-subtitle">Weka kumbukumbu za kuongeza bidhaa zilizununuliwa</p>
-                
-                <label class="form-label">Chagua Kifaa</label>
-                <select id="purItemSelect"><option value="">-- Chagua Kifaa --</option></select>
-                
-                <label class="form-label">Idadi Iliyonunuliwa</label>
-                <input type="number" id="purQty" placeholder="0">
-                
-                <label class="form-label">Jumla ya Gharama Zilizotumika (Tsh)</label>
-                <input type="number" id="purTotalCost" placeholder="0">
-                
-                <button class="action-btn" onclick="recordPurchase()">Hifadhi Manunuzi</button>
+                <select id="purItemSelect"><option value="">Chagua Kifaa</option></select>
+                <input type="number" id="purQty" placeholder="Idadi Iliyonunuliwa">
+                <input type="number" id="purTotalCost" placeholder="Jumla ya Gharama (Tsh)">
+                <button onclick="recordPurchase()">Hifadhi Manunuzi</button>
             </div>
         </div>
 
-        <!-- POS (SALES) PAGE -->
         <div id="pagePOS" class="page">
-            <div class="card" style="max-width: 520px;">
+            <div class="card">
                 <h2>Moduli ya Mauzo (POS)</h2>
-                <p class="auth-subtitle">Fanya mauzo ya bidhaa kwa wateja kwa urahisi</p>
-                
-                <label class="form-label">Chagua Kifaa cha Kuuza</label>
-                <select id="posItemSelect" onchange="updatePOSPrice()"><option value="">-- Chagua Kifaa --</option></select>
-                
-                <label class="form-label">Jina la Mteja</label>
-                <input type="text" id="posCustomer" placeholder="Jina kamili la mteja">
-                
-                <label class="form-label">Idadi Inayouzwa</label>
-                <input type="number" id="posQty" placeholder="0" oninput="calculateTotal()">
-                
-                <label class="form-label">Bei ya Kuuzia kwa Kimoja (Tsh)</label>
-                <input type="number" id="posPrice" placeholder="0" readonly style="background: #f8fafc;">
-                
-                <div style="background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 14px; text-align: center;">
-                    <span style="font-size: 0.8em; color: #64748b; display: block; text-transform: uppercase; font-weight: 600;">Jumla Kuu ya Mauzo</span>
-                    <span id="posTotalDisplay" style="font-weight: 700; font-size: 1.2em; color: var(--primary);">Tsh 0</span>
-                </div>
-                
-                <button class="action-btn" onclick="processSale()" style="background: var(--success); margin-top: 14px;">Thibitisha Mauzo</button>
+                <select id="posItemSelect" onchange="updatePOSPrice()"><option value="">Chagua Kifaa cha Kuuza</option></select>
+                <input type="text" id="posCustomer" placeholder="Jina la Mteja">
+                <input type="number" id="posQty" placeholder="Idadi Inayouzwa" oninput="calculateTotal()">
+                <input type="number" id="posPrice" placeholder="Bei ya Kuuzia kwa Kimoja" readonly>
+                <p id="posTotalDisplay" style="font-weight: bold; font-size: 1.05em; color: var(--primary); margin: 10px 0;">Jumla: Tsh 0</p>
+                <button onclick="processSale()" style="background: var(--success);">Thibitisha Mauzo</button>
             </div>
         </div>
 
-        <!-- EXPENSES PAGE -->
         <div id="pageExpenses" class="page">
-            <div class="card" style="max-width: 480px;">
+            <div class="card">
                 <h2>Gharama za Uendeshaji</h2>
-                <p class="auth-subtitle">Rekodi matumizi au gharama zote zilizojitokeza</p>
-                
-                <label class="form-label">Maelezo ya Gharama</label>
-                <input type="text" id="expDesc" placeholder="mfano: Usafiri, Umeme, n.k">
-                
-                <label class="form-label">Kiasi Kilichotumika (Tsh)</label>
-                <input type="number" id="expAmount" placeholder="0">
-                
-                <button class="action-btn" onclick="recordExpense()" style="background: var(--danger);">Hifadhi Gharama</button>
+                <input type="text" id="expDesc" placeholder="Maelezo ya Gharama (mfano: Usafiri)">
+                <input type="number" id="expAmount" placeholder="Kiasi Kilichotumika (Tsh)">
+                <button onclick="recordExpense()" style="background: var(--danger);">Hifadhi Gharama</button>
             </div>
         </div>
 
-        <!-- FINANCIALS / P&L PAGE -->
         <div id="pageFinancials" class="page">
-            <div class="card" style="max-width: 650px;">
+            <div class="card" style="max-width: 700px;">
                 <h2>Ripoti ya Faida na Hasara (P&L)</h2>
-                <p class="auth-subtitle">Angalia muhtasari wa kifedha wa biashara yako</p>
-                
-                <div id="financialSummary" style="background: #f8fafc; padding: 18px; border-radius: 12px; margin-bottom: 16px; border-left: 4px solid var(--primary); border: 1px solid var(--border-color); font-size: 0.9em;">
-                    <p style="margin: 6px 0; display: flex; justify-content: space-between;"><span>Jumla ya Mapato:</span> <strong id="repRevenue">0</strong></p>
-                    <p style="margin: 6px 0; display: flex; justify-content: space-between;"><span>Gharama za Vifaa (COGS):</span> <strong id="repCOGS">0</strong></p>
-                    <p style="margin: 6px 0; display: flex; justify-content: space-between;"><span>Gharama za Ziada:</span> <strong id="repExpenses">0</strong></p>
-                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 12px 0;">
-                    <p style="margin: 6px 0; display: flex; justify-content: space-between; font-size: 1.1em;"><span>Faida Halisi:</span> <strong id="repNetProfit" style="color: var(--success);">0 Tsh</strong></p>
+                <div id="financialSummary" style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid var(--primary); font-size: 0.85em;">
+                    <p><strong>Jumla ya Mapato:</strong> <span id="repRevenue">0</span> Tsh</p>
+                    <p><strong>Gharama za Vifaa (COGS):</strong> <span id="repCOGS">0</span> Tsh</p>
+                    <p><strong>Gharama za Ziada:</strong> <span id="repExpenses">0</span> Tsh</p>
+                    <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
+                    <p style="font-size: 1.05em;"><strong>Faida Halisi:</strong> <span id="repNetProfit" style="color: var(--success);">0</span> Tsh</p>
                 </div>
-                
-                <div style="display: flex; gap: 10px; flex-direction: column;">
-                    <button class="action-btn" onclick="loadFinancialReport()" style="margin-top: 0;">Sasisha Ripoti</button>
-                    <button class="action-btn" onclick="printOfficialReport()" style="background: var(--dark); margin-top: 0;"><i class="fa fa-print"></i> Chapisha Ripoti Rasmi</button>
+                <div style="display: flex; gap: 8px; flex-direction: column;">
+                    <button onclick="loadFinancialReport()">Sasisha Ripoti</button>
+                    <button onclick="printOfficialReport()" style="background: var(--dark);"><i class="fa fa-print"></i> Chapisha Ripoti</button>
                 </div>
             </div>
         </div>
@@ -560,7 +424,6 @@
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         
-        // Funga sidebar kwenye simu menyu ikibonyezwa
         if(window.innerWidth <= 768) {
             document.getElementById('sidebar').classList.remove('mobile-open');
             document.getElementById('sidebar-overlay').classList.remove('active');
@@ -727,13 +590,9 @@
         db.ref('inventory/').on('value', snap => {
             const tbody = document.getElementById('inventoryTableBody');
             tbody.innerHTML = '';
-            if(!snap.exists()) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">Hakuna vifaa vilivyowekwa bado.</td></tr>';
-                return;
-            }
             snap.forEach(child => {
                 const item = child.val();
-                tbody.innerHTML += `<tr><td><strong>${item.name}</strong></td><td>${item.buyPrice.toLocaleString()}</td><td>${item.sellPrice.toLocaleString()}</td><td><span style="background: #e2e8f0; padding: 3px 8px; border-radius: 6px; font-weight: 600;">${item.qty}</span></td></tr>`;
+                tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.buyPrice.toLocaleString()}</td><td>${item.sellPrice.toLocaleString()}</td><td>${item.qty}</td></tr>`;
             });
         });
     }
@@ -742,8 +601,8 @@
         db.ref('inventory/').once('value', snap => {
             const posSelect = document.getElementById('posItemSelect');
             const purSelect = document.getElementById('purItemSelect');
-            posSelect.innerHTML = '<option value="">-- Chagua Kifaa --</option>';
-            purSelect.innerHTML = '<option value="">-- Chagua Kifaa --</option>';
+            posSelect.innerHTML = '<option value="">Chagua Kifaa cha Kuuza</option>';
+            purSelect.innerHTML = '<option value="">Chagua Kifaa</option>';
 
             snap.forEach(child => {
                 const item = child.val();
@@ -764,7 +623,7 @@
     function calculateTotal() {
         const qty = parseFloat(document.getElementById('posQty').value) || 0;
         const price = parseFloat(document.getElementById('posPrice').value) || 0;
-        document.getElementById('posTotalDisplay').innerText = "Tsh " + (qty * price).toLocaleString();
+        document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh " + (qty * price).toLocaleString();
     }
 
     function recordPurchase() {
@@ -793,7 +652,7 @@
         const price = parseFloat(document.getElementById('posPrice').value);
         const currentStock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock') || 0);
 
-        if(!itemId || !customer || isNaN(qty) || qty <= 0) return alert("Weka taarifa sahihi za mauzo!");
+        if(!itemId || !customer || isNaN(qty) || qty <= 0) return alert("Weka taarifa sahihi!");
         if(qty > currentStock) return alert("Idadi unayouza ni kubwa kuliko salio lililopo stoku!");
 
         db.ref('sales/').push({ itemId, customer, qty, totalAmount: qty * price, date: new Date().toISOString() });
@@ -802,7 +661,7 @@
             document.getElementById('posCustomer').value = '';
             document.getElementById('posQty').value = '';
             document.getElementById('posPrice').value = '';
-            document.getElementById('posTotalDisplay').innerText = "Tsh 0";
+            document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh 0";
             loadItemDropdowns();
         });
     }
@@ -810,7 +669,7 @@
     function recordExpense() {
         const desc = document.getElementById('expDesc').value.trim();
         const amount = parseFloat(document.getElementById('expAmount').value);
-        if(!desc || isNaN(amount)) return alert("Jaza maelezo na kiasi sahihi cha gharama!");
+        if(!desc || isNaN(amount)) return alert("Jaza maelezo na kiasi!");
 
         db.ref('expenses/').push({ desc, amount, date: new Date().toISOString() }).then(() => {
             alert("Gharama imerekodiwa!");
@@ -839,12 +698,12 @@
         const netProfit = totalRevenue - totalCOGS - totalExpenses;
         globalNetProfitData = { totalRevenue, totalCOGS, totalExpenses, netProfit };
 
-        document.getElementById('repRevenue').innerText = totalRevenue.toLocaleString() + " Tsh";
-        document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString() + " Tsh";
-        document.getElementById('repExpenses').innerText = totalExpenses.toLocaleString() + " Tsh";
+        document.getElementById('repRevenue').innerText = totalRevenue.toLocaleString();
+        document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString();
+        document.getElementById('repExpenses').innerText = totalExpenses.toLocaleString();
         
         const netEl = document.getElementById('repNetProfit');
-        netEl.innerText = netProfit.toLocaleString() + " Tsh";
+        netEl.innerText = netProfit.toLocaleString();
         netEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
     }
 
@@ -857,24 +716,23 @@
 
         const printWindow = window.open('', '_blank');
         printWindow.document.write(`
-            <html><head><title>Ripoti Rasmi ya Biashara</title>
+            <html><head><title>Ripoti Rasmi</title>
             <style>
-                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #1e293b; }
-                h1 { color: #4f46e5; font-size: 22px; text-align: center; margin-bottom: 5px; }
-                p.sub { text-align: center; color: #64748b; font-size: 13px; margin-bottom: 25px; }
+                body { font-family: sans-serif; padding: 20px; color: #1e293b; }
+                h1 { color: #4361ee; font-size: 20px; text-align: center; }
                 table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-                th, td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 14px; }
-                th { background: #4f46e5; color: white; }
+                th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; font-size: 13px; }
+                th { background: #4361ee; color: white; }
             </style></head>
             <body>
                 <h1>Ordering Product & Maintenance Service</h1>
-                <p class="sub">Tarehe ya Ripoti: ${currentDate}</p>
+                <p><b>Tarehe:</b> ${currentDate}</p>
                 <table>
-                    <tr><th>Kipengele cha Kifedha</th><th>Kiasi (Tsh)</th></tr>
-                    <tr><td>Jumla ya Mapato (Revenue)</td><td>${rev}</td></tr>
+                    <tr><th>Kipengele</th><th>Kiasi (Tsh)</th></tr>
+                    <tr><td>Jumla ya Mapato</td><td>${rev}</td></tr>
                     <tr><td>Gharama za Vifaa (COGS)</td><td>${cogs}</td></tr>
-                    <tr><td>Gharama za Ziada (Expenses)</td><td>${exp}</td></tr>
-                    <tr><td><b>Faida Halisi (Net Profit)</b></td><td><b>${net}</b></td></tr>
+                    <tr><td>Gharama za Ziada</td><td>${exp}</td></tr>
+                    <tr><td><b>Faida Halisi</b></td><td><b>${net}</b></td></tr>
                 </table>
             </body></html>
         `);
