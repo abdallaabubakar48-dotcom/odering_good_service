@@ -12,35 +12,52 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
-        :root { --primary: #0056b3; --sidebar: #2c3e50; --success: #28a745; --danger: #dc3545; --warning: #ffc107; --dark: #343a40; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --primary: #4361ee; --primary-dark: #3a0ca3; --sidebar: #1e293b; --success: #2ec4b6; --danger: #e71d36; --warning: #ff9f1c; --dark: #0f172a; --bg-light: #f8fafc; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); margin: 0; display: flex; height: 100vh; overflow: hidden; color: #334155; }
         
-        #sidebar { width: 260px; background: var(--sidebar); color: white; display: none; overflow-y: auto; flex-shrink: 0; }
-        .sidebar-brand { padding: 20px; font-size: 1.1em; font-weight: bold; background: #1a252f; text-align: center; }
-        .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #34495e; display: flex; align-items: center; justify-content: space-between; }
-        .menu-item:hover { background: #34495e; }
-        .dropdown { background: #1a252f; display: none; padding-left: 15px; }
+        #sidebar { width: 280px; background: var(--sidebar); color: white; display: none; overflow-y: auto; flex-shrink: 0; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+        .sidebar-brand { padding: 25px 20px; font-size: 1.2em; font-weight: bold; background: #0f172a; text-align: center; letter-spacing: 0.5px; border-bottom: 1px solid #334155; }
+        .menu-item { padding: 16px 20px; cursor: pointer; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; transition: background 0.2s; font-size: 0.95em; }
+        .menu-item:hover { background: #334155; }
+        .dropdown { background: #0f172a; display: none; padding-left: 10px; }
         .dropdown .menu-item { border: none; padding: 12px 20px; font-size: 0.9em; }
 
         #main-container { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        #topbar { height: 60px; background: white; border-bottom: 1px solid #ddd; display: none; justify-content: flex-end; align-items: center; padding: 0 20px; gap: 20px; }
-        .user-profile-section { display: flex; align-items: center; gap: 10px; }
-        .user-profile-section img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
-        .topbar-btn { background: none; border: none; cursor: pointer; font-weight: 600; color: #333; display: flex; align-items: center; gap: 5px; padding: 8px 12px; border-radius: 5px; width: auto; margin: 0; }
-        .topbar-btn:hover { background: #f1f1f1; }
+        #topbar { height: 70px; background: white; border-bottom: 1px solid #e2e8f0; display: none; justify-content: flex-end; align-items: center; padding: 0 30px; gap: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .user-profile-section { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .user-profile-section img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .topbar-btn { background: none; border: none; cursor: pointer; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; transition: background 0.2s; }
+        .topbar-btn:hover { background: #f1f5f9; color: var(--primary); }
         .topbar-btn.logout-btn { color: var(--danger); }
+        .topbar-btn.logout-btn:hover { background: #ffeeef; }
 
-        #content { flex-grow: 1; padding: 30px; display: flex; justify-content: center; align-items: center; overflow-y: auto; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 5px; }
-        button:hover { opacity: 0.9; }
+        #content { flex-grow: 1; padding: 40px; display: flex; justify-content: center; align-items: center; overflow-y: auto; }
+        
+        /* Modern Cards & Auth Styles */
+        .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); width: 100%; max-width: 500px; transition: transform 0.3s ease; }
+        .auth-card { max-width: 450px; border-top: 5px solid var(--primary); }
+        .auth-card h2 { margin-top: 0; color: var(--dark); font-size: 1.8em; margin-bottom: 8px; text-align: center; }
+        .auth-subtitle { text-align: center; color: #64748b; font-size: 0.95em; margin-bottom: 25px; }
+        
+        input, select { width: 100%; padding: 14px 16px; margin: 10px 0; border: 1.5px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 1em; transition: border-color 0.2s; outline: none; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15); }
+        
+        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1em; margin-top: 10px; transition: opacity 0.2s, transform 0.1s; }
+        button:hover { opacity: 0.95; transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
         
         .page { display: none; } 
-        .active { display: block; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9em; }
-        th { background-color: #f8f9fa; }
+        .active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 1px #e2e8f0; }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 12px 16px; text-align: left; font-size: 0.9em; }
+        th { background-color: #f8fafc; color: var(--dark); font-weight: 600; }
+        tr:hover { background-color: #f8fafc; }
+
+        .error-feedback { color: var(--danger); font-size: 0.85em; margin-top: -5px; margin-bottom: 10px; display: block; }
+        .success-feedback { color: var(--success); font-size: 0.85em; margin-top: -5px; margin-bottom: 10px; display: block; }
     </style>
 </head>
 <body>
@@ -76,44 +93,71 @@
             <div class="menu-item" onclick="show('pageFinancials')"><i class="fa fa-chart-line"></i> Faida na Hasara</div>
         </div>
     </div>
+
+    <!-- General Settings Menu -->
+    <div style="margin-top: 20px; border-top: 1px solid #334155;">
+        <div class="menu-item" onclick="show('pageProfile')"><i class="fa fa-user-edit"></i> Profaili Yangu</div>
+        <div class="menu-item" onclick="show('pageChangePass')"><i class="fa fa-key"></i> Badilisha Password</div>
+    </div>
 </div>
 
 <!-- MAIN CONTAINER -->
 <div id="main-container">
     <div id="topbar">
-        <div class="user-profile-section">
+        <div class="user-profile-section" onclick="show('pageProfile')">
             <img id="topUserImg" src="https://via.placeholder.com/40" alt="Profile">
-            <span id="topUserName" style="font-weight: 600; font-size: 0.9em; color: #333;">Mtumiaji</span>
+            <span id="topUserName" style="font-weight: 600; font-size: 0.95em; color: #1e293b;">Mtumiaji</span>
         </div>
-        <button class="topbar-btn logout-btn" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Logout</button>
+        <button class="topbar-btn logout-btn" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Ondoka</button>
     </div>
 
     <div id="content">
         <!-- LOGIN PAGE -->
-        <div id="loginPage" class="card active page">
-            <h2>Ingia kwenye Mfumo</h2>
-            <input type="email" id="logEmail" placeholder="Email Address">
-            <input type="password" id="logPass" placeholder="Password">
+        <div id="loginPage" class="card auth-card active page">
+            <h2>Karibu Tena</h2>
+            <p class="auth-subtitle">Ingiza taarifa zako kuendelea na mfumo</p>
+            <input type="email" id="logEmail" placeholder="Weka Barua Pepe (Email)">
+            <input type="password" id="logPass" placeholder="Weka Neno la Siri (Password)">
             <button onclick="loginUser()">Ingia Sasa</button>
-            <p style="text-align: center; margin-top: 15px;">Huna akaunti? <span onclick="show('signupPage')" style="color:blue; cursor:pointer; font-weight:bold;">Jisajili</span></p>
+            <p style="text-align: center; margin-top: 20px; color: #64748b;">Huna akaunti? <span onclick="show('signupPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Jisajili hapa</span></p>
         </div>
 
         <!-- SIGNUP PAGE -->
-        <div id="signupPage" class="card page">
-            <h2>Jisajili Mtumiaji</h2>
+        <div id="signupPage" class="card auth-card page">
+            <h2>Fungua Akaunti</h2>
+            <p class="auth-subtitle">Jaza taarifa zako ili kujisajili kwenye mfumo</p>
             <input type="text" id="regName" placeholder="Jina Kamili">
             <select id="userRole">
                 <option value="user">User (Mtendaji wa Kawaida)</option>
                 <option value="admin">Admin (Msimamizi Mkuu)</option>
             </select>
-            <input type="email" id="signEmail" placeholder="Email Address">
-            <input type="password" id="signPass" placeholder="Password (angalau herufi 6)">
+            <input type="email" id="signEmail" placeholder="Barua Pepe (Email)">
+            <input type="password" id="signPass" placeholder="Neno la Siri (angalau herufi 6)">
             <button onclick="signupUser()">Kamilisha Usajili</button>
-            <p style="text-align: center; margin-top: 15px;"><span onclick="show('loginPage')" style="color:blue; cursor:pointer; font-weight:bold;">Rudi Login</span></p>
+            <p style="text-align: center; margin-top: 20px; color: #64748b;">Una akaunti tayari? <span onclick="show('loginPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Rudi Uingie</span></p>
+        </div>
+
+        <!-- PROFILE MANAGEMENT PAGE -->
+        <div id="pageProfile" class="card page">
+            <h2>Taarifa za Profaili Yangu</h2>
+            <p class="auth-subtitle">Sasisha jina lako au picha ya utambulisho</p>
+            <label style="font-size: 0.85em; font-weight: bold;">Jina Kamili:</label>
+            <input type="text" id="profName" placeholder="Jina lako kamili">
+            <label style="font-size: 0.85em; font-weight: bold;">Link ya Picha ya Profaili (URL):</label>
+            <input type="text" id="profImg" placeholder="https://mfano.com/picha.jpg">
+            <button onclick="updateProfileData()" style="background: var(--success);">Sasisha Profaili</button>
+        </div>
+
+        <!-- CHANGE PASSWORD PAGE -->
+        <div id="pageChangePass" class="card page">
+            <h2>Badilisha Neno la Siri</h2>
+            <p class="auth-subtitle">Weka neno jipya la siri lenye usalama</p>
+            <input type="password" id="newPass" placeholder="Neno jipya la siri (angalau herufi 6)">
+            <button onclick="changePassword()" style="background: var(--warning); color: #0f172a;">Badilisha Sasa</button>
         </div>
 
         <!-- INVENTORY PAGE (Admin Only) -->
-        <div id="pageInventory" class="card page" style="max-width: 800px;">
+        <div id="pageInventory" class="card page" style="max-width: 850px;">
             <h2>Orodha ya Vifaa na Stoku</h2>
             <input type="text" id="invName" placeholder="Jina la Kifaa / Bidhaa">
             <input type="number" id="invBuyPrice" placeholder="Bei ya Kununua (Tsh)">
@@ -121,10 +165,10 @@
             <input type="number" id="invQty" placeholder="Idadi ya Awali (Stock Balance)">
             <button onclick="addInventoryItem()" style="background: var(--success);">Ongeza Kifaa Kipya</button>
             
-            <h3 style="margin-top: 20px;">Vifaa Vilivyopo Stoku</h3>
+            <h3 style="margin-top: 25px; color: var(--dark);">Vifaa Vilivyopo Stoku</h3>
             <table>
                 <thead>
-                    <tr><th>Kifaa</th><th>Nunua</th><th>Uuza</th><th>Salio</th></tr>
+                    <tr><th>Kifaa</th><th>Nunua (Tsh)</th><th>Uuza (Tsh)</th><th>Salio</th></tr>
                 </thead>
                 <tbody id="inventoryTableBody">
                     <tr><td colspan="4">Inapakia...</td></tr>
@@ -148,7 +192,7 @@
             <input type="text" id="posCustomer" placeholder="Jina la Mteja">
             <input type="number" id="posQty" placeholder="Idadi Inayouzwa" oninput="calculateTotal()">
             <input type="number" id="posPrice" placeholder="Bei ya Kuuzia kwa Kimoja" readonly>
-            <p id="posTotalDisplay" style="font-weight: bold; font-size: 1.1em; color: var(--primary);">Jumla: Tsh 0</p>
+            <p id="posTotalDisplay" style="font-weight: bold; font-size: 1.2em; color: var(--primary); margin: 15px 0;">Jumla: Tsh 0</p>
             <button onclick="processSale()" style="background: var(--success);">Thibitisha Mauzo</button>
         </div>
 
@@ -161,16 +205,19 @@
         </div>
 
         <!-- FINANCIALS / P&L PAGE (Admin Only) -->
-        <div id="pageFinancials" class="card page" style="max-width: 700px;">
+        <div id="pageFinancials" class="card page" style="max-width: 750px;">
             <h2>Ripoti ya Faida na Hasara (P&L)</h2>
-            <div id="financialSummary" style="background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <div id="financialSummary" style="background: #f1f5f9; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid var(--primary);">
                 <p><strong>Jumla ya Mapato (Revenue):</strong> <span id="repRevenue">0</span> Tsh</p>
                 <p><strong>Gharama za Vifaa Vilivyouzwa (COGS):</strong> <span id="repCOGS">0</span> Tsh</p>
                 <p><strong>Gharama za Ziada (Expenses):</strong> <span id="repExpenses">0</span> Tsh</p>
-                <hr>
-                <p style="font-size: 1.2em;"><strong>Faida Halisi (Net Profit):</strong> <span id="repNetProfit" style="color: var(--success);">0</span> Tsh</p>
+                <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 15px 0;">
+                <p style="font-size: 1.25em;"><strong>Faida Halisi (Net Profit):</strong> <span id="repNetProfit" style="color: var(--success);">0</span> Tsh</p>
             </div>
-            <button onclick="loadFinancialReport()">Sasisha Ripoti</button>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="loadFinancialReport()">Sasisha Ripoti</button>
+                <button onclick="downloadFinancialReport()" style="background: var(--dark);">Pakua Ripoti (Download)</button>
+            </div>
         </div>
     </div>
 </div>
@@ -192,12 +239,15 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
+    let currentUserData = null;
+
     function show(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         if(id === 'pageInventory') loadInventory();
         if(id === 'pagePOS' || id === 'pagePurchases') loadItemDropdowns();
         if(id === 'pageFinancials') loadFinancialReport();
+        if(id === 'pageProfile' && auth.currentUser) loadProfileInputs();
     }
 
     function toggleDrop(id) {
@@ -211,35 +261,39 @@
         const email = document.getElementById('signEmail').value.trim();
         const pass = document.getElementById('signPass').value.trim();
 
-        if(!name || !email || !pass) return alert("Jaza sehemu zote wazi!");
-        if(pass.length < 6) return alert("Password iwe na angalau herufi 6!");
+        if(!name || !email || !pass) return alert("Tafadhali jaza sehemu zote wazi!");
+        if(pass.length < 6) return alert("Neno la siri (Password) linapaswa kuwa na angalau herufi 6!");
 
         try {
             const res = await auth.createUserWithEmailAndPassword(email, pass);
-            await db.ref('users/' + res.user.uid).set({ name, role, email });
-            alert("Usajili umefanikiwa!");
+            await db.ref('users/' + res.user.uid).set({ name, role, email, photoUrl: "https://via.placeholder.com/40" });
+            alert("Usajili umefanikiwa! Sasa unaweza kuingia.");
             show('loginPage');
-        } catch(e) { alert(e.message); }
+        } catch(e) { alert("Hitilafu wakati wa kusajili: " + e.message); }
     }
 
     function loginUser() {
         const email = document.getElementById('logEmail').value.trim();
         const pass = document.getElementById('logPass').value.trim();
-        if(!email || !pass) return alert("Jaza email na password!");
+        if(!email || !pass) return alert("Weka email na password yako kuingia!");
 
         auth.signInWithEmailAndPassword(email, pass)
         .then(res => {
             document.getElementById('sidebar').style.display = 'block';
             document.getElementById('topbar').style.display = 'flex';
             checkRoleAndRoute(res.user.uid);
-        }).catch(e => alert(e.message));
+        }).catch(e => alert("Imeshindikana kuingia: Angalia email au password yako. (" + e.message + ")"));
     }
 
     function checkRoleAndRoute(uid) {
         db.ref('users/' + uid).once('value', snap => {
             const data = snap.val();
             if(data) {
+                currentUserData = data;
                 document.getElementById('topUserName').innerText = data.name;
+                if(data.photoUrl) {
+                    document.getElementById('topUserImg').src = data.photoUrl;
+                }
                 document.getElementById('menuUser').style.display = 'none';
                 document.getElementById('menuAdmin').style.display = 'none';
 
@@ -252,6 +306,48 @@
                 }
             }
         });
+    }
+
+    function loadProfileInputs() {
+        if(currentUserData) {
+            document.getElementById('profName').value = currentUserData.name || '';
+            document.getElementById('profImg').value = currentUserData.photoUrl || '';
+        }
+    }
+
+    async function updateProfileData() {
+        const name = document.getElementById('profName').value.trim();
+        const photoUrl = document.getElementById('profImg').value.trim();
+        const user = auth.currentUser;
+
+        if(!name) return alert("Jina halipaswi kuwa wazi!");
+
+        try {
+            await db.ref('users/' + user.uid).update({ name, photoUrl });
+            currentUserData.name = name;
+            currentUserData.photoUrl = photoUrl;
+            document.getElementById('topUserName').innerText = name;
+            if(photoUrl) document.getElementById('topUserImg').src = photoUrl;
+            alert("Profaili yako imesasishwa kikamilifu!");
+        } catch(e) {
+            alert("Imeshindikana kusasisha: " + e.message);
+        }
+    }
+
+    async function changePassword() {
+        const newPass = document.getElementById('newPass').value.trim();
+        if(newPass.length < 6) return alert("Neno jipya la siri linapaswa kuwa na angalau herufi 6!");
+        
+        const user = auth.currentUser;
+        if(user) {
+            try {
+                await user.updatePassword(newPass);
+                alert("Neno la siri limebadilishwa kwa mafanikio!");
+                document.getElementById('newPass').value = '';
+            } catch(e) {
+                alert("Imeshindikana kubadilisha neno la siri. Tafadhali fanya logout kisha uingie upya na ujaribu tena: " + e.message);
+            }
+        }
     }
 
     // INVENTORY MANAGEMENT
@@ -282,7 +378,7 @@
             tbody.innerHTML = '';
             snap.forEach(child => {
                 const item = child.val();
-                tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.buyPrice}</td><td>${item.sellPrice}</td><td>${item.qty}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.buyPrice.toLocaleString()}</td><td>${item.sellPrice.toLocaleString()}</td><td>${item.qty}</td></tr>`;
             });
         });
     }
@@ -330,6 +426,8 @@
             const currentQty = snap.val().qty || 0;
             db.ref('inventory/' + itemId).update({ qty: currentQty + qty }).then(() => {
                 alert("Manunuzi yamerekodiwa na stoku imeongezeka!");
+                document.getElementById('purQty').value = '';
+                document.getElementById('purTotalCost').value = '';
             });
         });
     }
@@ -352,6 +450,10 @@
 
         db.ref('inventory/' + itemId).update({ qty: currentStock - qty }).then(() => {
             alert("✅ Mauzo yamekamilika na stoku imepunguzwa!");
+            document.getElementById('posCustomer').value = '';
+            document.getElementById('posQty').value = '';
+            document.getElementById('posPrice').value = '';
+            document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh 0";
             loadItemDropdowns();
         });
     }
@@ -371,6 +473,7 @@
     }
 
     // FINANCIAL CALCULATIONS (P&L)
+    let globalNetProfitData = {};
     async function loadFinancialReport() {
         let totalRevenue = 0;
         let totalCOGS = 0;
@@ -395,6 +498,7 @@
         });
 
         const netProfit = totalRevenue - totalCOGS - totalExpenses;
+        globalNetProfitData = { totalRevenue, totalCOGS, totalExpenses, netProfit };
 
         document.getElementById('repRevenue').innerText = totalRevenue.toLocaleString();
         document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString();
@@ -403,6 +507,28 @@
         const netEl = document.getElementById('repNetProfit');
         netEl.innerText = netProfit.toLocaleString();
         netEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function downloadFinancialReport() {
+        const reportText = `--- RIPOTI YA FAIDA NA HASARA (P&L) ---
+Tarehe: ${new Date().toLocaleDateString()}
+----------------------------------------
+Jumla ya Mapato (Revenue): ${globalNetProfitData.totalRevenue || 0} Tsh
+Gharama za Vifaa (COGS): ${globalNetProfitData.totalCOGS || 0} Tsh
+Gharama za Uendeshaji: ${globalNetProfitData.totalExpenses || 0} Tsh
+----------------------------------------
+FAIDA HALISI (Net Profit): ${globalNetProfitData.netProfit || 0} Tsh
+----------------------------------------`;
+
+        const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Ripoti_Faida_Na_Hasara_${new Date().toISOString().slice(0,10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 
     function logout() { auth.signOut().then(() => location.reload()); }
