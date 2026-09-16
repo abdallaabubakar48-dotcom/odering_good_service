@@ -129,6 +129,7 @@
             <div class="menu-item" onclick="navigateTo('pagePurchases')"><i class="fa fa-truck-loading"></i> Manunuzi</div>
             <div class="menu-item" onclick="navigateTo('pageExpenses')"><i class="fa fa-receipt"></i> Gharama za Uendeshaji</div>
             <div class="menu-item" onclick="navigateTo('pageFinancials')"><i class="fa fa-chart-line"></i> Faida na Hasara</div>
+            <div class="menu-item" onclick="navigateTo('pageRegisterAdmin')"><i class="fa fa-user-shield"></i> Sajili Admin Mpya</div>
         </div>
     </div>
 
@@ -176,26 +177,35 @@
             </div>
         </div>
 
-        <!-- MODERN SIGNUP PAGE -->
+        <!-- MODERN SIGNUP PAGE (IMECHUJWA: HAKUNA TENA CHAGUO LA ADMIN HAPA) -->
         <div id="signupPage" class="page">
             <div class="auth-wrapper">
                 <div class="auth-banner" style="background: linear-gradient(135deg, #2ec4b6, #20a4f3);">
                     <h1>Jiunge Nasi</h1>
-                    <p>Fungua akaunti mpya ya mfumo ili uanze kufanya kazi kwa ufanisi mkubwa.</p>
+                    <p>Fungua akaunti mpya ya mtendaji kwenye mfumo ili uanze kufanya kazi kwa ufanisi mkubwa.</p>
                 </div>
                 <div class="auth-form-container">
                     <h2>Fungua Akaunti</h2>
-                    <p class="auth-subtitle">Jaza taarifa zako hapa chini</p>
+                    <p class="auth-subtitle">Jaza taarifa zako hapa chini (Akaunti za kawaida)</p>
                     <input type="text" id="regName" placeholder="Jina Kamili">
-                    <select id="userRole">
-                        <option value="user">User (Mtendaji wa Kawaida)</option>
-                        <option value="admin">Admin (Msimamizi Mkuu)</option>
-                    </select>
+                    <!-- Chaguo la role limetolewa ili kujisajili kuwe kwa User wa kawaida pekee -->
                     <input type="email" id="signEmail" placeholder="Barua Pepe (Email)">
                     <input type="password" id="signPass" placeholder="Neno la Siri (angalau herufi 6)">
                     <button onclick="signupUser()">Kamilisha Usajili</button>
                     <p style="text-align: center; margin-top: 15px; color: #64748b; font-size: 0.85em;">Una akaunti tayari? <span onclick="showPage('loginPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Rudi Uingie</span></p>
                 </div>
+            </div>
+        </div>
+
+        <!-- PAGE REGISTER ADMIN (MPYA: ADMIN PEKEE NDIYE ANAYEWEZA KUSAJILI ADMIN MWENZAKE) -->
+        <div id="pageRegisterAdmin" class="page">
+            <div class="card" style="max-width: 600px;">
+                <h2>Sajili Admin Mpya</h2>
+                <p class="auth-subtitle">Moduli maalum ya wasimamizi wakuu kuongeza Msimamizi mwenza</p>
+                <input type="text" id="regAdminName" placeholder="Jina Kamili la Admin">
+                <input type="email" id="regAdminEmail" placeholder="Barua Pepe (Email) ya Admin">
+                <input type="password" id="regAdminPass" placeholder="Neno la Siri la Awali (angalau herufi 6)">
+                <button onclick="registerNewAdmin()" style="background: var(--warning); color: #0f172a;"><i class="fa fa-user-plus"></i> Sajili Admin Huyu</button>
             </div>
         </div>
 
@@ -248,7 +258,7 @@
             </div>
         </div>
 
-        <!-- INVENTORY PAGE (Admin Only) - SEHEMU YA KUBEBA ADD STOCK ILIYOBORESHWA -->
+        <!-- INVENTORY PAGE (Admin Only) -->
         <div id="pageInventory" class="page">
             <div class="card" style="max-width: 800px;">
                 <h2>Orodha ya Vifaa na Stoku</h2>
@@ -364,13 +374,11 @@
     let currentUserData = null;
     let base64ImageString = "";
 
-    // Kazi ya kufungua/kufunga Sidebar kwenye simu
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('sidebar-overlay').classList.toggle('active');
     }
 
-    // Dynamic Menu: Ukibonyeza page yoyote, sidebar inajifunga yenyewe kwenye simu
     function navigateTo(id) {
         showPage(id);
         if(window.innerWidth <= 768) {
@@ -405,9 +413,9 @@
         }
     }
 
+    // Usajili wa kawaida (Unajisajili kama User wa Kawaida pekee)
     async function signupUser() {
         const name = document.getElementById('regName').value.trim();
-        const role = document.getElementById('userRole').value;
         const email = document.getElementById('signEmail').value.trim();
         const pass = document.getElementById('signPass').value.trim();
 
@@ -416,10 +424,53 @@
 
         try {
             const res = await auth.createUserWithEmailAndPassword(email, pass);
-            await db.ref('users/' + res.user.uid).set({ name, role, email, photoUrl: "https://via.placeholder.com/95" });
+            await db.ref('users/' + res.user.uid).set({ 
+                name, 
+                role: 'user', // Imewekwa moja kwa moja kuwa user wa kawaida ili kuzuia kujisajili kama admin
+                email, 
+                photoUrl: "https://via.placeholder.com/95" 
+            });
             alert("Usajili umefanikiwa! Sasa unaweza kuingia.");
             showPage('loginPage');
         } catch(e) { alert("Hitilafu: " + e.message); }
+    }
+
+    // Moduli mpya ya Admin kusajili Admin mwenzake kupitia ndani ya mfumo
+    async function registerNewAdmin() {
+        const name = document.getElementById('regAdminName').value.trim();
+        const email = document.getElementById('regAdminEmail').value.trim();
+        const pass = document.getElementById('regAdminPass').value.trim();
+
+        if(!name || !email || !pass) return alert("Tafadhali jaza taarifa zote za admin mpya!");
+        if(pass.length < 6) return alert("Neno la siri linapaswa kuwa na angalau herufi 6!");
+
+        // Tunatumiza secondary app au tunabadilisha muda ili session isipotee ya Admin aliyepo sasa
+        // Njia salama hapa ni kutumia Firebase secondary app au kuhifadhi kwanza, ila kwa sababu ya Compat, 
+        // tutatumia mbinu ya kuzuia logout ya sasa kupitia creating temporary instance au alert.
+        try {
+            // Tunasajili moja kwa moja kupitia authentication kwa muda bila kupoteza session kuu ya admin
+            const secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryApp");
+            const secondaryAuth = secondaryApp.auth();
+            
+            const res = await secondaryAuth.createUserWithEmailAndPassword(email, pass);
+            await db.ref('users/' + res.user.uid).set({ 
+                name, 
+                role: 'admin', // Imewekwa kuwa admin
+                email, 
+                photoUrl: "https://via.placeholder.com/95" 
+            });
+
+            await secondaryAuth.signOut();
+            secondaryApp.delete();
+
+            alert("Admin mpya amesajiliwa kikamilifu na admin mwenzake!");
+            document.getElementById('regAdminName').value = '';
+            document.getElementById('regAdminEmail').value = '';
+            document.getElementById('regAdminPass').value = '';
+            showPage('pageInventory');
+        } catch(e) { 
+            alert("Hitilafu wakati wa kusajili Admin: " + e.message); 
+        }
     }
 
     function loginUser() {
@@ -552,19 +603,22 @@
             const purSelect = document.getElementById('purItemSelect');
             posSelect.innerHTML = '<option value="">Chagua Kifaa cha Kuuza</option>';
             purSelect.innerHTML = '<option value="">Chagua Kifaa</option>';
-
-            snap.forEach(child => {
-                const item = child.val();
-                const opt = `<option value="${child.key}" data-price="${item.sellPrice}" data-stock="${item.qty}">${item.name} (Salio: ${item.qty})</option>`;
-                posSelect.innerHTML += opt;
-                purSelect.innerHTML += `<option value="${child.key}">${item.name}</option>`;
-            });
+            
+            if(snap.exists()) {
+                snap.forEach(child => {
+                    const id = child.key;
+                    const val = child.val();
+                    posSelect.innerHTML += `<option value="${id}" data-price="${val.sellPrice}" data-stock="${val.qty}">${val.name} (Zimebaki: ${val.qty})</option>`;
+                    purSelect.innerHTML += `<option value="${id}">${val.name}</option>`;
+                });
+            }
         });
     }
 
     function updatePOSPrice() {
         const select = document.getElementById('posItemSelect');
-        const price = select.options[select.selectedIndex].getAttribute('data-price') || 0;
+        const opt = select.options[select.selectedIndex];
+        const price = opt.getAttribute('data-price') || 0;
         document.getElementById('posPrice').value = price;
         calculateTotal();
     }
@@ -572,25 +626,8 @@
     function calculateTotal() {
         const qty = parseFloat(document.getElementById('posQty').value) || 0;
         const price = parseFloat(document.getElementById('posPrice').value) || 0;
-        document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh " + (qty * price).toLocaleString();
-    }
-
-    function recordPurchase() {
-        const itemId = document.getElementById('purItemSelect').value;
-        const qty = parseInt(document.getElementById('purQty').value);
-        const totalCost = parseFloat(document.getElementById('purTotalCost').value);
-
-        if(!itemId || isNaN(qty) || isNaN(totalCost)) return alert("Jaza taarifa zote za manunuzi!");
-
-        db.ref('purchases/').push({ itemId, qty, totalCost, date: new Date().toISOString() });
-        db.ref('inventory/' + itemId).once('value', snap => {
-            const currentQty = snap.val().qty || 0;
-            db.ref('inventory/' + itemId).update({ qty: currentQty + qty }).then(() => {
-                alert("Manunuzi yamerekodiwa na stoku imeongezeka!");
-                document.getElementById('purQty').value = '';
-                document.getElementById('purTotalCost').value = '';
-            });
-        });
+        const total = qty * price;
+        document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh " + total.toLocaleString();
     }
 
     function processSale() {
@@ -598,32 +635,82 @@
         const itemId = select.value;
         const customer = document.getElementById('posCustomer').value.trim();
         const qty = parseInt(document.getElementById('posQty').value);
-        const currentStock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock') || 0);
+        const opt = select.options[select.selectedIndex];
+        const stock = parseInt(opt.getAttribute('data-stock') || 0);
+        const price = parseFloat(document.getElementById('posPrice').value) || 0;
 
-        if(!itemId || !customer || isNaN(qty) || qty <= 0) return alert("Weka taarifa sahihi za mauzo!");
-        if(qty > currentStock) return alert("Idadi unayouza ni kubwa kuliko salio lililopo stoku!");
+        if(!itemId || !customer || isNaN(qty) || qty <= 0) {
+            return alert("Tafadhali jaza taarifa zote za mauzo kwa usahihi!");
+        }
 
-        db.ref('sales/').push({
-            itemId, customer, qty, totalAmount: qty * parseFloat(document.getElementById('posPrice').value), date: new Date().toISOString()
+        if(qty > stock) {
+            return alert("Idadi unayouza ni kubwa kuliko stoku iliyobaki! (" + stock + ")");
+        }
+
+        const totalRevenue = qty * price;
+        // Tunapunguza stock na kuhifadhi mauzo
+        db.ref('inventory/' + itemId).update({ qty: stock - qty }).then(() => {
+            db.ref('sales/').push({
+                itemId,
+                customer,
+                qty,
+                price,
+                total: totalRevenue,
+                timestamp: Date.now()
+            }).then(() => {
+                alert("Mauzo yametibitishwa na kuhifadhiwa kikamilifu!");
+                document.getElementById('posCustomer').value = '';
+                document.getElementById('posQty').value = '';
+                document.getElementById('posPrice').value = '';
+                document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh 0";
+                loadItemDropdowns();
+            });
         });
+    }
 
-        db.ref('inventory/' + itemId).update({ qty: currentStock - qty }).then(() => {
-            alert("Mauzo yamethibitishwa!");
-            document.getElementById('posCustomer').value = '';
-            document.getElementById('posQty').value = '';
-            document.getElementById('posPrice').value = '';
-            document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh 0";
-            loadItemDropdowns();
+    function recordPurchase() {
+        const itemId = document.getElementById('purItemSelect').value;
+        const qty = parseInt(document.getElementById('purQty').value);
+        const cost = parseFloat(document.getElementById('purTotalCost').value);
+
+        if(!itemId || isNaN(qty) || isNaN(cost)) {
+            return alert("Tafadhali jaza taarifa za manunuzi kwa usahihi!");
+        }
+
+        db.ref('inventory/' + itemId).once('value', snap => {
+            if(snap.exists()) {
+                const currentQty = snap.val().qty || 0;
+                db.ref('inventory/' + itemId).update({ qty: currentQty + qty }).then(() => {
+                    db.ref('purchases/').push({
+                        itemId,
+                        qty,
+                        cost,
+                        timestamp: Date.now()
+                    }).then(() => {
+                        alert("Manunuzi yamerekodiwa na stoku imeongezeka!");
+                        document.getElementById('purQty').value = '';
+                        document.getElementById('purTotalCost').value = '';
+                        loadItemDropdowns();
+                    });
+                });
+            }
         });
     }
 
     function recordExpense() {
         const desc = document.getElementById('expDesc').value.trim();
         const amount = parseFloat(document.getElementById('expAmount').value);
-        if(!desc || isNaN(amount)) return alert("Jaza maelezo na kiasi cha gharama!");
 
-        db.ref('expenses/').push({ desc, amount, date: new Date().toISOString() }).then(() => {
-            alert("Gharama imehifadhiwa!");
+        if(!desc || isNaN(amount)) {
+            return alert("Tafadhali jaza maelezo na kiasi cha gharama!");
+        }
+
+        db.ref('expenses/').push({
+            description: desc,
+            amount,
+            timestamp: Date.now()
+        }).then(() => {
+            alert("Gharama za uendeshaji zimerekodiwa!");
             document.getElementById('expDesc').value = '';
             document.getElementById('expAmount').value = '';
         });
@@ -634,24 +721,28 @@
         let totalCOGS = 0;
         let totalExpenses = 0;
 
-        const invSnap = await db.ref('inventory/').once('value');
-        const buyPrices = {};
-        invSnap.forEach(child => {
-            buyPrices[child.key] = child.val().buyPrice || 0;
-        });
-
+        // Tunakusanya mauzo
         const salesSnap = await db.ref('sales/').once('value');
-        salesSnap.forEach(child => {
-            const sale = child.val();
-            totalRevenue += (sale.totalAmount || 0);
-            const unitBuy = buyPrices[sale.itemId] || 0;
-            totalCOGS += (unitBuy * sale.qty);
-        });
+        if(salesSnap.exists()) {
+            const invSnap = await db.ref('inventory/').once('value');
+            const invData = invSnap.val() || {};
+            
+            salesSnap.forEach(child => {
+                const sale = child.val();
+                totalRevenue += (sale.total || 0);
+                if(invData[sale.itemId]) {
+                    totalCOGS += (invData[sale.itemId].buyPrice || 0) * (sale.qty || 0);
+                }
+            });
+        }
 
+        // Tunakusanya matumizi/gharama
         const expSnap = await db.ref('expenses/').once('value');
-        expSnap.forEach(child => {
-            totalExpenses += (child.val().amount || 0);
-        });
+        if(expSnap.exists()) {
+            expSnap.forEach(child => {
+                totalExpenses += (child.val().amount || 0);
+            });
+        }
 
         const netProfit = totalRevenue - (totalCOGS + totalExpenses);
 
@@ -659,9 +750,9 @@
         document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString();
         document.getElementById('repExpenses').innerText = totalExpenses.toLocaleString();
         
-        const profitEl = document.getElementById('repNetProfit');
-        profitEl.innerText = netProfit.toLocaleString();
-        profitEl.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+        const netProfitEl = document.getElementById('repNetProfit');
+        netProfitEl.innerText = netProfit.toLocaleString();
+        netProfitEl.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
     }
 
     function printOfficialReport() {
