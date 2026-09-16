@@ -11,96 +11,113 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
+    <!-- Chart.js for Visual Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        :root { --primary: #4361ee; --primary-dark: #3a0ca3; --sidebar: #1e293b; --success: #2ec4b6; --danger: #e71d36; --warning: #ff9f1c; --dark: #0f172a; --bg-light: #f8fafc; }
+        :root { 
+            --primary: #4361ee; 
+            --primary-dark: #3a0ca3; 
+            --sidebar: #1e293b; 
+            --success: #2ec4b6; 
+            --danger: #e71d36; 
+            --warning: #ff9f1c; 
+            --dark: #0f172a; 
+            --bg-light: #f1f5f9; 
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+        }
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); margin: 0; display: flex; min-height: 100vh; overflow-x: hidden; color: #334155; }
         
         /* SIDEBAR & MOBILE TOGGLE */
-        #sidebar { width: 280px; background: var(--sidebar); color: white; position: fixed; top: 0; left: -280px; height: 100%; overflow-y: auto; z-index: 1000; transition: left 0.3s ease; box-shadow: 4px 0 10px rgba(0,0,0,0.1); }
+        #sidebar { width: 280px; background: var(--sidebar); color: white; position: fixed; top: 0; left: -280px; height: 100%; overflow-y: auto; z-index: 1000; transition: left 0.3s ease; box-shadow: 4px 0 15px rgba(0,0,0,0.15); }
         #sidebar.active { left: 0; }
-        .sidebar-brand { padding: 20px; font-size: 1.1em; font-weight: bold; background: #0f172a; text-align: center; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-brand { padding: 22px; font-size: 1.15em; font-weight: bold; background: #0f172a; text-align: center; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
         .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; transition: background 0.2s; font-size: 0.95em; }
-        .menu-item:hover { background: #334155; }
+        .menu-item:hover { background: #334155; color: #38bdf8; }
         .dropdown { background: #0f172a; display: none; padding-left: 10px; }
         .dropdown .menu-item { border: none; padding: 12px 20px; font-size: 0.9em; }
 
         /* MAIN CONTAINER & TOPBAR */
         #main-container { flex-grow: 1; display: flex; flex-direction: column; width: 100%; min-height: 100vh; transition: margin-left 0.3s ease; }
-        #topbar { height: 70px; background: white; border-bottom: 1px solid #e2e8f0; display: none; justify-content: space-between; align-items: center; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: sticky; top: 0; z-index: 999; }
+        #topbar { height: 75px; background: var(--card-bg); border-bottom: 1px solid #e2e8f0; display: none; justify-content: space-between; align-items: center; padding: 0 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 999; }
         
         .topbar-left { display: flex; align-items: center; gap: 15px; }
-        .menu-toggle-btn { background: none; border: none; font-size: 1.4em; cursor: pointer; color: var(--dark); padding: 5px; }
+        .menu-toggle-btn { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1.2em; cursor: pointer; color: var(--dark); padding: 8px 12px; transition: all 0.2s; }
+        .menu-toggle-btn:hover { background: var(--primary); color: #fff; }
 
-        .user-profile-section { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .user-profile-section img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .user-profile-section { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 5px 10px; border-radius: 8px; transition: background 0.2s; }
+        .user-profile-section:hover { background: #f8fafc; }
+        .user-profile-section img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
         
         .topbar-right { display: flex; align-items: center; gap: 10px; }
-        .topbar-btn { background: none; border: none; cursor: pointer; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; transition: background 0.2s; font-size: 0.9em; }
+        .topbar-btn { background: none; border: none; cursor: pointer; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; transition: background 0.2s; font-size: 0.9em; }
         .topbar-btn:hover { background: #f1f5f9; color: var(--primary); }
-        .topbar-btn.logout-btn { color: var(--danger); }
-        .topbar-btn.logout-btn:hover { background: #ffeeef; }
+        .topbar-btn.logout-btn { color: var(--danger); background: #ffeeef; }
+        .topbar-btn.logout-btn:hover { background: #fdd8d8; }
 
-        #content { flex-grow: 1; padding: 20px; display: flex; justify-content: center; align-items: flex-start; width: 100%; }
+        #content { flex-grow: 1; padding: 25px; display: flex; justify-content: center; align-items: flex-start; width: 100%; }
         
         /* AUTH & CARD STYLES */
-        .auth-wrapper { display: flex; flex-direction: column; width: 100%; max-width: 900px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); margin-top: 20px; }
+        .auth-wrapper { display: flex; flex-direction: column; width: 100%; max-width: 950px; background: var(--card-bg); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-top: 20px; }
         @media(min-width: 768px) { .auth-wrapper { flex-direction: row; } }
         
-        .auth-banner { flex: 1; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .auth-banner { flex: 1; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 45px 25px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .logo-container { width: 110px; height: 110px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 3px solid rgba(255, 255, 255, 0.3); overflow: hidden; }
         .logo-container img { width: 100%; height: 100%; object-fit: cover; }
         .logo-placeholder { font-size: 0.8em; font-weight: bold; color: white; text-align: center; padding: 10px; }
 
-        .auth-banner h1 { font-size: 1.8em; margin-bottom: 10px; }
-        .auth-banner p { font-size: 0.95em; line-height: 1.5; opacity: 0.9; }
-        .auth-form-container { flex: 1; padding: 30px 20px; display: flex; flex-direction: column; justify-content: center; }
+        .auth-banner h1 { font-size: 1.8em; margin-bottom: 12px; }
+        .auth-banner p { font-size: 0.95em; line-height: 1.6; opacity: 0.9; }
+        .auth-form-container { flex: 1; padding: 35px 30px; display: flex; flex-direction: column; justify-content: center; }
         
-        .card { background: white; padding: 25px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); width: 100%; max-width: 650px; margin-top: 10px; }
-        .card h2 { margin-top: 0; color: var(--dark); font-size: 1.5em; margin-bottom: 8px; }
-        .auth-subtitle { color: #64748b; font-size: 0.9em; margin-bottom: 20px; }
+        .card { background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); width: 100%; max-width: 700px; margin-top: 10px; border: 1px solid #e2e8f0; }
+        .card h2 { margin-top: 0; color: var(--dark); font-size: 1.6em; margin-bottom: 8px; font-weight: 700; }
+        .auth-subtitle { color: #64748b; font-size: 0.92em; margin-bottom: 22px; }
         
-        input, select { width: 100%; padding: 12px 14px; margin: 8px 0; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 1em; outline: none; background: #fff; }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15); }
+        input, select { width: 100%; padding: 12px 16px; margin: 8px 0 16px 0; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 0.95em; outline: none; background: #fff; transition: all 0.2s; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.12); }
         
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1em; margin-top: 10px; transition: opacity 0.2s; }
-        button:hover { opacity: 0.95; }
+        button { width: 100%; padding: 13px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1em; margin-top: 10px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2); }
+        button:hover { opacity: 0.92; transform: translateY(-1px); }
         
         .page { display: none; width: 100%; justify-content: center; } 
         .active-page { display: flex !important; animation: fadeIn 0.3s ease-in-out; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; min-width: 450px; }
-        th, td { border-bottom: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; font-size: 0.85em; }
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; background: #fff; min-width: 500px; }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 12px 15px; text-align: left; font-size: 0.9em; }
         th { background-color: #f8fafc; color: var(--dark); font-weight: 600; }
+        tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f8fafc; }
 
         /* PROFILE STYLES */
         .profile-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .profile-header-banner { width: 100%; height: 120px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 12px 12px 0 0; position: relative; margin-bottom: 50px; }
-        .profile-avatar-wrapper { position: absolute; bottom: -45px; left: 50%; transform: translateX(-50%); text-align: center; }
-        .profile-avatar-wrapper img { width: 95px; height: 95px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background: white; }
+        .profile-header-banner { width: 100%; height: 130px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 12px 12px 0 0; position: relative; margin-bottom: 55px; }
+        .profile-avatar-wrapper { position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); text-align: center; }
+        .profile-avatar-wrapper img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: white; }
         .profile-body { width: 100%; padding: 0 10px 10px 10px; }
-        .info-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 15px 0; width: 100%; }
+        .info-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 15px 0; width: 100%; }
         @media(min-width: 500px) { .info-grid { grid-template-columns: 1fr 1fr; } }
-        .info-card { background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .info-card span { font-size: 0.75em; color: #64748b; display: block; margin-bottom: 2px; }
-        .info-card strong { font-size: 0.95em; color: var(--dark); }
+        .info-card { background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .info-card span { font-size: 0.78em; color: #64748b; display: block; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+        .info-card strong { font-size: 0.98em; color: var(--dark); }
 
         /* LOW STOCK ALERT BADGE */
-        .badge-low-stock { background-color: #ffeeef; color: var(--danger); padding: 4px 8px; border-radius: 4px; font-weight: bold; display: inline-block; }
+        .badge-low-stock { background-color: #ffeeef; color: var(--danger); padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.85em; display: inline-block; border: 1px solid #fdd8d8; }
 
         /* RECEIPT MODAL STYLES FOR PRINTING */
-        #receiptModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .receipt-card { background: white; padding: 20px; border-radius: 10px; width: 320px; text-align: center; font-family: monospace; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .receipt-header h3 { margin: 0 0 5px 0; font-size: 1.2em; color: #000; }
-        .receipt-header p { margin: 2px 0; font-size: 0.8em; color: #555; }
-        .receipt-body { text-align: left; margin: 15px 0; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 10px 0; font-size: 0.85em; }
+        #receiptModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .receipt-card { background: white; padding: 25px; border-radius: 14px; width: 340px; text-align: center; font-family: monospace; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+        .receipt-header h3 { margin: 0 0 5px 0; font-size: 1.25em; color: #000; font-weight: bold; }
+        .receipt-header p { margin: 3px 0; font-size: 0.82em; color: #555; }
+        .receipt-body { text-align: left; margin: 15px 0; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 12px 0; font-size: 0.9em; }
         
         /* Overlay for mobile sidebar */
-        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 998; display: none; }
+        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 998; display: none; backdrop-filter: blur(2px); }
         #sidebar-overlay.active { display: block; }
 
         @media print {
@@ -128,12 +145,12 @@
             <p><strong>Bidhaa:</strong> <span id="recItemName">-</span></p>
             <p><strong>Idadi:</strong> <span id="recQty">-</span></p>
             <p><strong>Bei ya Moja:</strong> <span id="recUnitPrice">-</span> Tsh</p>
-            <hr style="border:0; border-top:1px dashed #000; margin:8px 0;">
-            <p style="font-size: 1em;"><strong>Jumla:</strong> <span id="recTotalPrice">-</span> Tsh</p>
+            <hr style="border:0; border-top:1px dashed #000; margin:10px 0;">
+            <p style="font-size: 1.05em;"><strong>Jumla:</strong> <span id="recTotalPrice">-</span> Tsh</p>
         </div>
-        <p style="font-size: 0.75em; margin-bottom: 15px;">Karibu Tena Huduma Yetu!</p>
-        <button onclick="window.print()" style="background: var(--dark); padding: 8px; font-size: 0.9em; margin-bottom: 5px;"><i class="fa fa-print"></i> Chapisha Risiti</button>
-        <button onclick="closeReceiptModal()" style="background: #cbd5e1; color: #334155; padding: 8px; font-size: 0.9em; margin-top: 0;">Funga</button>
+        <p style="font-size: 0.8em; margin-bottom: 15px;">Karibu Tena Huduma Yetu!</p>
+        <button onclick="window.print()" style="background: var(--dark); padding: 10px; font-size: 0.9em; margin-bottom: 8px; box-shadow: none;"><i class="fa fa-print"></i> Chapisha Risiti</button>
+        <button onclick="closeReceiptModal()" style="background: #e2e8f0; color: #334155; padding: 10px; font-size: 0.9em; margin-top: 0; box-shadow: none;">Funga</button>
     </div>
 </div>
 
@@ -166,7 +183,7 @@
             <div class="menu-item" onclick="navigateTo('pagePOS')"><i class="fa fa-shopping-cart"></i> Mauzo (POS)</div>
             <div class="menu-item" onclick="navigateTo('pagePurchases')"><i class="fa fa-truck-loading"></i> Manunuzi</div>
             <div class="menu-item" onclick="navigateTo('pageExpenses')"><i class="fa fa-receipt"></i> Gharama za Uendeshaji</div>
-            <div class="menu-item" onclick="navigateTo('pageFinancials')"><i class="fa fa-chart-line"></i> Faida na Hasara</div>
+            <div class="menu-item" onclick="navigateTo('pageFinancials')"><i class="fa fa-chart-line"></i> Faida na Hasara & Grafu</div>
             <div class="menu-item" onclick="navigateTo('pageManageUsers')"><i class="fa fa-users-cog"></i> Wasimamizi na Watumiaji</div>
             <div class="menu-item" onclick="navigateTo('pageRegisterAdmin')"><i class="fa fa-user-shield"></i> Sajili Admin Mpya</div>
         </div>
@@ -185,7 +202,7 @@
             <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
             <div class="user-profile-section" onclick="navigateTo('pageProfile')">
                 <img id="topUserImg" src="https://via.placeholder.com/40" alt="Profile">
-                <span id="topUserName" style="font-weight: 600; font-size: 0.9em; color: #1e293b;">Mtumiaji</span>
+                <span id="topUserName" style="font-weight: 600; font-size: 0.92em; color: #1e293b;">Mtumiaji</span>
             </div>
         </div>
         <div class="topbar-right">
@@ -203,15 +220,17 @@
                         <div id="logoTextPlaceholder" class="logo-placeholder"><i class="fa fa-image" style="font-size: 1.3em; display:block; margin-bottom:4px;"></i>LOGO</div>
                     </div>
                     <h1><i class="fa fa-tools"></i> Ordering & Maintenance</h1>
-                    <p>Mfumo thabiti wa kusimamia mauzo, vifaa vya akiba (stoku), manunuzi, na ripoti za kifedha.</p>
+                    <p>Mfumo thabiti wa kusimamia mauzo, vifaa vya akiba (stoku), manunuzi, na ripoti za kifedha kwa njia ya kisasa.</p>
                 </div>
                 <div class="auth-form-container">
                     <h2>Karibu Tena</h2>
-                    <p class="auth-subtitle">Ingiza taarifa zako kuendelea</p>
-                    <input type="email" id="logEmail" placeholder="Weka Barua Pepe (Email)">
-                    <input type="password" id="logPass" placeholder="Weka Neno la Siri (Password)">
+                    <p class="auth-subtitle">Ingiza taarifa zako kuendelea kwenye mfumo</p>
+                    <label style="font-size: 0.85em; font-weight: 600;">Barua Pepe (Email)</label>
+                    <input type="email" id="logEmail" placeholder="mfano@domain.com">
+                    <label style="font-size: 0.85em; font-weight: 600;">Neno la Siri (Password)</label>
+                    <input type="password" id="logPass" placeholder="Weka neno la siri">
                     <button onclick="loginUser()">Ingia Sasa</button>
-                    <p style="text-align: center; margin-top: 15px; color: #64748b; font-size: 0.85em;">Huna akaunti? <span onclick="showPage('signupPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Jisajili hapa</span></p>
+                    <p style="text-align: center; margin-top: 20px; color: #64748b; font-size: 0.88em;">Huna akaunti? <span onclick="showPage('signupPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Jisajili hapa</span></p>
                 </div>
             </div>
         </div>
@@ -225,12 +244,15 @@
                 </div>
                 <div class="auth-form-container">
                     <h2>Fungua Akaunti</h2>
-                    <p class="auth-subtitle">Jaza taarifa zako hapa chini (Akaunti za kawaida)</p>
-                    <input type="text" id="regName" placeholder="Jina Kamili">
-                    <input type="email" id="signEmail" placeholder="Barua Pepe (Email)">
-                    <input type="password" id="signPass" placeholder="Neno la Siri (angalau herufi 6)">
-                    <button onclick="signupUser()">Kamilisha Usajili</button>
-                    <p style="text-align: center; margin-top: 15px; color: #64748b; font-size: 0.85em;">Una akaunti tayari? <span onclick="showPage('loginPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Rudi Uingie</span></p>
+                    <p class="auth-subtitle">Jaza taarifa zako hapa chini kwa ajili ya usajili</p>
+                    <label style="font-size: 0.85em; font-weight: 600;">Jina Kamili</label>
+                    <input type="text" id="regName" placeholder="Jina lako kamili">
+                    <label style="font-size: 0.85em; font-weight: 600;">Barua Pepe (Email)</label>
+                    <input type="email" id="signEmail" placeholder="mfano@domain.com">
+                    <label style="font-size: 0.85em; font-weight: 600;">Neno la Siri</label>
+                    <input type="password" id="signPass" placeholder="Angalau herufi 6">
+                    <button onclick="signupUser()" style="background: var(--success);">Kamilisha Usajili</button>
+                    <p style="text-align: center; margin-top: 20px; color: #64748b; font-size: 0.88em;">Una akaunti tayari? <span onclick="showPage('loginPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Rudi Uingie</span></p>
                 </div>
             </div>
         </div>
@@ -264,10 +286,13 @@
         <div id="pageRegisterAdmin" class="page">
             <div class="card" style="max-width: 600px;">
                 <h2>Sajili Admin Mpya</h2>
-                <p class="auth-subtitle">Moduli maalum ya wasimamizi wakuu kuongeza Msimamizi mwenza</p>
-                <input type="text" id="regAdminName" placeholder="Jina Kamili la Admin">
-                <input type="email" id="regAdminEmail" placeholder="Barua Pepe (Email) ya Admin">
-                <input type="password" id="regAdminPass" placeholder="Neno la Siri la Awali (angalau herufi 6)">
+                <p class="auth-subtitle">Moduli maalum ya wasimamizi wakuu kuongeza Msimamizi mwenza kwenye mfumo</p>
+                <label style="font-size: 0.85em; font-weight: 600;">Jina Kamili la Admin</label>
+                <input type="text" id="regAdminName" placeholder="Jina la admin mpya">
+                <label style="font-size: 0.85em; font-weight: 600;">Barua Pepe (Email)</label>
+                <input type="email" id="regAdminEmail" placeholder="admin@domain.com">
+                <label style="font-size: 0.85em; font-weight: 600;">Neno la Siri la Awali</label>
+                <input type="password" id="regAdminPass" placeholder="Angalau herufi 6">
                 <button onclick="registerNewAdmin()" style="background: var(--warning); color: #0f172a;"><i class="fa fa-user-plus"></i> Sajili Admin Huyu</button>
             </div>
         </div>
@@ -278,15 +303,15 @@
                 <div class="profile-container">
                     <div class="profile-header-banner">
                         <div class="profile-avatar-wrapper">
-                            <img id="profilePreviewImg" src="https://via.placeholder.com/95" alt="Picha">
+                            <img id="profilePreviewImg" src="https://via.placeholder.com/100" alt="Picha">
                         </div>
                     </div>
-                    <div class="profile-body" style="padding: 0 20px 20px 20px;">
-                        <h2 style="text-align: center; margin-top: 10px; margin-bottom: 2px;">Profaili Yangu</h2>
-                        <p class="auth-subtitle" style="text-align: center;">Dhibiti taarifa zako binafsi</p>
+                    <div class="profile-body" style="padding: 0 25px 25px 25px;">
+                        <h2 style="text-align: center; margin-top: 15px; margin-bottom: 4px;">Profaili Yangu</h2>
+                        <p class="auth-subtitle" style="text-align: center;">Dhibiti taarifa zako binafsi na picha ya utambulisho</p>
                         
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <label style="background: #e2e8f0; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600; display: inline-block; color: #334155;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <label style="background: #e2e8f0; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 0.88em; font-weight: 600; display: inline-block; color: #334155; transition: background 0.2s;">
                                 <i class="fa fa-camera"></i> Badilisha Picha
                                 <input type="file" id="profileFile" accept="image/*" style="display: none;" onchange="previewImage(event)">
                             </label>
@@ -303,9 +328,9 @@
                             </div>
                         </div>
 
-                        <label style="font-size: 0.8em; font-weight: bold; display: block; text-align: left; margin-top: 10px;">Jina Kamili:</label>
+                        <label style="font-size: 0.85em; font-weight: 600; display: block; text-align: left; margin-top: 10px;">Jina Kamili:</label>
                         <input type="text" id="profName" placeholder="Jina lako kamili">
-                        <button onclick="updateProfileData()" style="background: var(--success); margin-top: 12px;">Hifadhi Mabadiliko</button>
+                        <button onclick="updateProfileData()" style="background: var(--success); margin-top: 15px;">Hifadhi Mabadiliko</button>
                     </div>
                 </div>
             </div>
@@ -313,42 +338,43 @@
 
         <!-- CHANGE PASSWORD PAGE -->
         <div id="pageChangePass" class="page">
-            <div class="card">
+            <div class="card" style="max-width: 500px;">
                 <h2>Badilisha Neno la Siri</h2>
-                <p class="auth-subtitle">Weka neno jipya la siri lenye usalama</p>
-                <input type="password" id="newPass" placeholder="Neno jipya la siri (angalau herufi 6)">
+                <p class="auth-subtitle">Weka neno jipya la siri lenye usalama wa kutosha</p>
+                <label style="font-size: 0.85em; font-weight: 600;">Neno Jipya la Siri</label>
+                <input type="password" id="newPass" placeholder="Angalau herufi 6">
                 <button onclick="changePassword()" style="background: var(--warning); color: #0f172a;">Badilisha Sasa</button>
             </div>
         </div>
 
         <!-- INVENTORY PAGE WITH LOW STOCK ALERTS -->
         <div id="pageInventory" class="page">
-            <div class="card" style="max-width: 800px;">
+            <div class="card" style="max-width: 850px;">
                 <h2>Orodha ya Vifaa na Stoku</h2>
-                <p class="auth-subtitle">Ongeza aina mpya ya bidhaa au kifaa hapa chini</p>
+                <p class="auth-subtitle">Ongeza aina mpya ya bidhaa au kifaa na ufuatilie viwango vya stoku</p>
                 
-                <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
-                    <label style="font-size: 0.85em; font-weight: bold; color: var(--dark);">Aina ya Bidhaa / Kifaa:</label>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
+                    <label style="font-size: 0.88em; font-weight: 600; color: var(--dark);">Aina ya Bidhaa / Kifaa:</label>
                     <input type="text" id="invName" placeholder="Mfano: Skrubu, Soketi, Rangi, n.k.">
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
-                            <label style="font-size: 0.8em; font-weight: bold; color: var(--dark);">Bei ya Kununua (Tsh):</label>
+                            <label style="font-size: 0.85em; font-weight: 600; color: var(--dark);">Bei ya Kununua (Tsh):</label>
                             <input type="number" id="invBuyPrice" placeholder="0">
                         </div>
                         <div>
-                            <label style="font-size: 0.8em; font-weight: bold; color: var(--dark);">Bei ya Kuuzia (Tsh):</label>
+                            <label style="font-size: 0.85em; font-weight: 600; color: var(--dark);">Bei ya Kuuzia (Tsh):</label>
                             <input type="number" id="invSellPrice" placeholder="0">
                         </div>
                     </div>
 
-                    <label style="font-size: 0.8em; font-weight: bold; color: var(--dark);">Idadi ya Awali (Stock Balance):</label>
+                    <label style="font-size: 0.85em; font-weight: 600; color: var(--dark);">Idadi ya Awali (Stock Balance):</label>
                     <input type="number" id="invQty" placeholder="0">
                     
                     <button onclick="addInventoryItem()" style="background: var(--success);"><i class="fa fa-plus-circle"></i> Ongeza Kifaa Kipya Stoku</button>
                 </div>
                 
-                <h3 style="margin-top: 20px; color: var(--dark); font-size: 1.2em;">Vifaa Vilivyopo Stoku</h3>
+                <h3 style="margin-top: 20px; color: var(--dark); font-size: 1.25em;">Vifaa Vilivyopo Stoku</h3>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -364,55 +390,75 @@
 
         <!-- PURCHASES PAGE -->
         <div id="pagePurchases" class="page">
-            <div class="card">
+            <div class="card" style="max-width: 600px;">
                 <h2>Rekodi Manunuzi ya Vifaa</h2>
-                <p class="auth-subtitle">Ongeza idadi ya bidhaa zilizopo tayari kwenye mfumo</p>
+                <p class="auth-subtitle">Ongeza idadi ya bidhaa zilizopo tayari kwenye mfumo kupitia manunuzi mapya</p>
+                <label style="font-size: 0.85em; font-weight: 600;">Chagua Kifaa</label>
                 <select id="purItemSelect"><option value="">Chagua Kifaa</option></select>
-                <input type="number" id="purQty" placeholder="Idadi Iliyonunuliwa">
-                <input type="number" id="purTotalCost" placeholder="Jumla ya Gharama Zilizotumika (Tsh)">
+                <label style="font-size: 0.85em; font-weight: 600;">Idadi Iliyonunuliwa</label>
+                <input type="number" id="purQty" placeholder="0">
+                <label style="font-size: 0.85em; font-weight: 600;">Jumla ya Gharama Zilizotumika (Tsh)</label>
+                <input type="number" id="purTotalCost" placeholder="0">
                 <button onclick="recordPurchase()">Hifadhi Manunuzi</button>
             </div>
         </div>
 
         <!-- POS / SALES PAGE WITH RECEIPT GENERATION -->
         <div id="pagePOS" class="page">
-            <div class="card">
+            <div class="card" style="max-width: 600px;">
                 <h2>Moduli ya Mauzo (POS)</h2>
-                <p class="auth-subtitle">Fanya mauzo ya bidhaa kwa wateja</p>
+                <p class="auth-subtitle">Fanya mauzo ya bidhaa kwa wateja na utoe risiti rasmi</p>
+                <label style="font-size: 0.85em; font-weight: 600;">Chagua Kifaa cha Kuuza</label>
                 <select id="posItemSelect" onchange="updatePOSPrice()"><option value="">Chagua Kifaa cha Kuuza</option></select>
-                <input type="text" id="posCustomer" placeholder="Jina la Mteja">
-                <input type="number" id="posQty" placeholder="Idadi Inayouzwa" oninput="calculateTotal()">
-                <input type="number" id="posPrice" placeholder="Bei ya Kuuzia kwa Kimoja" readonly>
-                <p id="posTotalDisplay" style="font-weight: bold; font-size: 1.1em; color: var(--primary); margin: 10px 0;">Jumla: Tsh 0</p>
+                <label style="font-size: 0.85em; font-weight: 600;">Jina la Mteja</label>
+                <input type="text" id="posCustomer" placeholder="Weka jina la mteja">
+                <label style="font-size: 0.85em; font-weight: 600;">Idadi Inayouzwa</label>
+                <input type="number" id="posQty" placeholder="0" oninput="calculateTotal()">
+                <label style="font-size: 0.85em; font-weight: 600;">Bei ya Kuuzia kwa Kimoja (Tsh)</label>
+                <input type="number" id="posPrice" placeholder="0" readonly style="background: #f8fafc;">
+                <p id="posTotalDisplay" style="font-weight: bold; font-size: 1.15em; color: var(--primary); margin: 12px 0;">Jumla: Tsh 0</p>
                 <button onclick="processSale()" style="background: var(--success);">Thibitisha na Toa Risiti</button>
             </div>
         </div>
 
         <!-- EXPENSES PAGE -->
         <div id="pageExpenses" class="page">
-            <div class="card">
+            <div class="card" style="max-width: 600px;">
                 <h2>Gharama za Uendeshaji</h2>
-                <p class="auth-subtitle">Rekodi matumizi madogo madogo ya biashara</p>
-                <input type="text" id="expDesc" placeholder="Maelezo ya Gharama (mfano: Usafiri)">
-                <input type="number" id="expAmount" placeholder="Kiasi Kilichotumika (Tsh)">
+                <p class="auth-subtitle">Rekodi matumizi madogo madogo ya biashara yako</p>
+                <label style="font-size: 0.85em; font-weight: 600;">Maelezo ya Gharama</label>
+                <input type="text" id="expDesc" placeholder="Mfano: Usafiri, Umeme, n.k.">
+                <label style="font-size: 0.85em; font-weight: 600;">Kiasi Kilichotumika (Tsh)</label>
+                <input type="number" id="expAmount" placeholder="0">
                 <button onclick="recordExpense()" style="background: var(--danger);">Hifadhi Gharama</button>
             </div>
         </div>
 
-        <!-- FINANCIALS / P&L PAGE -->
+        <!-- FINANCIALS / P&L & CHARTS PAGE -->
         <div id="pageFinancials" class="page">
-            <div class="card" style="max-width: 750px;">
-                <h2>Ripoti ya Faida na Hasara (P&L)</h2>
-                <div id="financialSummary" style="background: #f1f5f9; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid var(--primary);">
-                    <p style="margin: 8px 0;"><strong>Jumla ya Mapato (Revenue):</strong> <span id="repRevenue">0</span> Tsh</p>
-                    <p style="margin: 8px 0;"><strong>Gharama za Vifaa (COGS):</strong> <span id="repCOGS">0</span> Tsh</p>
-                    <p style="margin: 8px 0;"><strong>Gharama za Ziada (Expenses):</strong> <span id="repExpenses">0</span> Tsh</p>
-                    <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
-                    <p style="font-size: 1.15em; margin: 8px 0;"><strong>Faida Halisi (Net Profit):</strong> <span id="repNetProfit" style="color: var(--success);">0</span> Tsh</p>
+            <div class="card" style="max-width: 800px;">
+                <h2>Ripoti ya Faida na Hasara (P&L) & Grafu</h2>
+                <p class="auth-subtitle">Muhtasari wa kifedha na michoro ya uwiano wa mapato, matumizi, na faida</p>
+                
+                <div id="financialSummary" style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--primary); border: 1px solid #e2e8f0;">
+                    <p style="margin: 8px 0; font-size: 0.95em;"><strong>Jumla ya Mapato (Revenue):</strong> <span id="repRevenue">0</span> Tsh</p>
+                    <p style="margin: 8px 0; font-size: 0.95em;"><strong>Gharama za Vifaa (COGS):</strong> <span id="repCOGS">0</span> Tsh</p>
+                    <p style="margin: 8px 0; font-size: 0.95em;"><strong>Gharama za Ziada (Expenses):</strong> <span id="repExpenses">0</span> Tsh</p>
+                    <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 12px 0;">
+                    <p style="font-size: 1.2em; margin: 8px 0;"><strong>Faida Halisi (Net Profit):</strong> <span id="repNetProfit" style="color: var(--success); font-weight: bold;">0</span> Tsh</p>
                 </div>
-                <div style="display: flex; gap: 10px; flex-direction: column;">
-                    <button onclick="loadFinancialReport()">Sasisha Ripoti</button>
-                    <button onclick="printOfficialReport()" style="background: var(--dark);"><i class="fa fa-print"></i> Chapisha Ripoti</button>
+
+                <!-- Visual Chart Container -->
+                <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                    <h3 style="font-size: 1.1em; margin-top: 0; color: var(--dark); margin-bottom: 15px;"><i class="fa fa-chart-pie"></i> Mchoro wa Uchambuzi wa Kifedha</h3>
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; flex-direction: column;">
+                    <button onclick="loadFinancialReport()">Sasisha Ripoti na Grafu</button>
+                    <button onclick="printOfficialReport()" style="background: var(--dark); box-shadow: none;"><i class="fa fa-print"></i> Chapisha Ripoti Rasmi</button>
                 </div>
             </div>
         </div>
@@ -436,6 +482,7 @@
 
     let currentUserData = null;
     let base64ImageString = "";
+    let financialChartInstance = null;
 
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
@@ -492,7 +539,7 @@
                 role: 'user', 
                 email, 
                 isBlocked: false,
-                photoUrl: "https://via.placeholder.com/95" 
+                photoUrl: "https://via.placeholder.com/100" 
             });
             alert("Usajili umefanikiwa! Sasa unaweza kuingia.");
             showPage('loginPage');
@@ -517,7 +564,7 @@
                 role: 'admin', 
                 email, 
                 isBlocked: false,
-                photoUrl: "https://via.placeholder.com/95" 
+                photoUrl: "https://via.placeholder.com/100" 
             });
 
             await secondaryAuth.signOut();
@@ -533,129 +580,211 @@
         }
     }
 
-    function loginUser() {
+    async function loginUser() {
         const email = document.getElementById('logEmail').value.trim();
         const pass = document.getElementById('logPass').value.trim();
-        if(!email || !pass) return alert("Weka email na password yako kuingia!");
+        if(!email || !pass) return alert("Weka email na password!");
 
-        auth.signInWithEmailAndPassword(email, pass)
-        .then(res => {
-            db.ref('users/' + res.user.uid).once('value', snap => {
-                const data = snap.val();
-                if(data && data.isBlocked) {
-                    auth.signOut();
-                    alert("⚠️ Akaunti yako imezuiwa (Blocked) na Msimamizi Mkuu!");
-                    return;
-                }
-                document.getElementById('topbar').style.display = 'flex';
-                checkRoleAndRoute(res.user.uid);
-            });
-        }).catch(e => alert("Imeshindikana kuingia: Angalia email au password yako."));
-    }
+        try {
+            const res = await auth.signInWithEmailAndPassword(email, pass);
+            const userSnap = await db.ref('users/' + res.user.uid).once('value');
+            const data = userSnap.val();
 
-    function logout() {
-        auth.signOut().then(() => {
-            document.getElementById('topbar').style.display = 'none';
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('sidebar-overlay').classList.remove('active');
-            showPage('loginPage');
-        });
-    }
-
-    function checkRoleAndRoute(uid) {
-        db.ref('users/' + uid).once('value', snap => {
-            const data = snap.val();
-            if(data) {
-                if(data.isBlocked) {
-                    auth.signOut();
-                    alert("⚠️ Akaunti yako imezuiwa (Blocked) na Msimamizi Mkuu!");
-                    document.getElementById('topbar').style.display = 'none';
-                    showPage('loginPage');
-                    return;
-                }
-                currentUserData = data;
-                document.getElementById('topUserName').innerText = data.name;
-                if(data.photoUrl) {
-                    document.getElementById('topUserImg').src = data.photoUrl;
-                }
-                document.getElementById('menuUser').style.display = 'none';
-                document.getElementById('menuAdmin').style.display = 'none';
-
-                if(data.role === 'admin') {
-                    document.getElementById('menuAdmin').style.display = 'block';
-                    showPage('pageInventory');
-                } else {
-                    document.getElementById('menuUser').style.display = 'block';
-                    showPage('pagePOS');
-                }
+            if(data && data.isBlocked) {
+                await auth.signOut();
+                return alert("Akaunti yako imezuiwa (Blocked). Wasiliana na Admin.");
             }
-        });
+
+            alert("Umeingia kwa mafanikio!");
+        } catch(e) { alert("Hitilafu: " + e.message); }
     }
 
-    // INVENTORY WITH LOW STOCK ALERT IMPLEMENTATION
-    function addInventoryItem() {
-        const name = document.getElementById('invName').value.trim();
-        const buyPrice = parseFloat(document.getElementById('invBuyPrice').value);
-        const sellPrice = parseFloat(document.getElementById('invSellPrice').value);
-        const qty = parseInt(document.getElementById('invQty').value);
-
-        if(!name || isNaN(buyPrice) || isNaN(sellPrice) || isNaN(qty)) {
-            return alert("Tafadhali jaza taarifa zote za kifaa kwa usahihi!");
-        }
-
-        db.ref('inventory').push({ name, buyPrice, sellPrice, qty })
-        .then(() => {
-            alert("Kifaa kimeongezwa stoku mafanikio!");
-            document.getElementById('invName').value = '';
-            document.getElementById('invBuyPrice').value = '';
-            document.getElementById('invSellPrice').value = '';
-            document.getElementById('invQty').value = '';
-            loadInventory();
-        }).catch(e => alert("Hitilafu: " + e.message));
+    async function logout() {
+        await auth.signOut();
     }
 
-    function loadInventory() {
-        db.ref('inventory').on('value', snap => {
-            const tbody = document.getElementById('inventoryTableBody');
-            tbody.innerHTML = '';
-            if(!snap.exists()) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Hakuna vifaa vilivyopo stoku.</td></tr>`;
+    auth.onAuthStateChanged(async (user) => {
+        if(user) {
+            const snap = await db.ref('users/' + user.uid).once('value');
+            currentUserData = snap.val();
+
+            if(currentUserData && currentUserData.isBlocked) {
+                await auth.signOut();
                 return;
             }
-            snap.forEach(child => {
-                const item = child.val();
-                // Low stock threshold i.e., <= 5 items triggers alert style
-                let qtyDisplay = item.qty;
-                if(item.qty <= 5) {
-                    qtyDisplay = `<span class="badge-low-stock">${item.qty} (Inapungua!)</span>`;
-                }
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td>${item.buyPrice.toLocaleString()}</td>
-                        <td>${item.sellPrice.toLocaleString()}</td>
-                        <td>${qtyDisplay}</td>
-                    </tr>
-                `;
-            });
-        });
+            document.getElementById('topbar').style.display = 'flex';
+            document.getElementById('topUserName').innerText = currentUserData?.name || 'Mtumiaji';
+            const userImg = currentUserData?.photoUrl || "https://via.placeholder.com/40";
+            document.getElementById('topUserImg').src = userImg;
+
+            if(currentUserData?.role === 'admin') {
+                document.getElementById('menuAdmin').style.display = 'block';
+                document.getElementById('menuUser').style.display = 'none';
+                showPage('pageInventory');
+            } else {
+                document.getElementById('menuAdmin').style.display = 'none';
+                document.getElementById('menuUser').style.display = 'block';
+                showPage('pagePOS');
+            }
+        } else {
+            currentUserData = null;
+            document.getElementById('topbar').style.display = 'none';
+            document.getElementById('menuAdmin').style.display = 'none';
+            document.getElementById('menuUser').style.display = 'none';
+            showPage('loginPage');
+        }
+    });
+
+    async function loadAllUsersForAdmin() {
+        const tbody = document.getElementById('allUsersTableBody');
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Inapakia...</td></tr>`;
+        
+        const snap = await db.ref('users').once('value');
+        const users = snap.val();
+        if(!users) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Hakuna watumiaji waliopatikana.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        for(let uid in users) {
+            let u = users[uid];
+            let statusText = u.isBlocked ? '<span style="color:var(--danger); font-weight:bold;">Imefungwa</span>' : '<span style="color:var(--success); font-weight:bold;">Hai</span>';
+            let actionBtn = u.isBlocked ? 
+                `<button onclick="toggleBlockUser('${uid}', false)" style="padding: 6px 12px; background:var(--success); font-size:0.8em; margin:0;">Fungua (Unblock)</button>` : 
+                `<button onclick="toggleBlockUser('${uid}', true)" style="padding: 6px 12px; background:var(--danger); font-size:0.8em; margin:0;">fungia (Block)</button>`;
+            
+            if(uid === auth.currentUser.uid) actionBtn = '<em style="font-size:0.85em; color:#888;">Akaunti Yako</em>';
+
+            html += `<tr>
+                <td>${u.name || '-'}</td>
+                <td>${u.email || '-'}</td>
+                <td style="text-transform: uppercase; font-weight:600;">${u.role || 'user'}</td>
+                <td>${statusText}</td>
+                <td>${actionBtn}</td>
+            </tr>`;
+        }
+        tbody.innerHTML = html;
     }
 
-    function loadItemDropdowns() {
-        db.ref('inventory').once('value', snap => {
-            const posSelect = document.getElementById('posItemSelect');
-            const purSelect = document.getElementById('purItemSelect');
-            posSelect.innerHTML = '<option value="">Chagua Kifaa cha Kuuza</option>';
-            purSelect.innerHTML = '<option value="">Chagua Kifaa</option>';
+    async function toggleBlockUser(uid, blockState) {
+        await db.ref('users/' + uid).update({ isBlocked: blockState });
+        loadAllUsersForAdmin();
+    }
 
-            snap.forEach(child => {
-                const item = child.val();
-                const opt = `<option value="${child.key}" data-price="${item.sellPrice}" data-qty="${item.qty}">${item.name} (Salio: ${item.qty})</option>`;
-                posSelect.innerHTML += opt;
-                purSelect.innerHTML += `<option value="${child.key}">${item.name}</option>`;
-            });
-        });
+    function loadProfileInputs() {
+        document.getElementById('profName').value = currentUserData?.name || '';
+        document.getElementById('dispUserEmail').innerText = currentUserData?.email || '-';
+        document.getElementById('dispUserRole').innerText = currentUserData?.role || '-';
+        if(currentUserData?.photoUrl) {
+            document.getElementById('profilePreviewImg').src = currentUserData.photoUrl;
+            base64ImageString = currentUserData.photoUrl;
+        }
+    }
+
+    async function updateProfileData() {
+        const name = document.getElementById('profName').value.trim();
+        if(!name) return alert("Jina halipaswi kuwa wazi!");
+
+        let updateObj = { name };
+        if(base64ImageString) updateObj.photoUrl = base64ImageString;
+
+        await db.ref('users/' + auth.currentUser.uid).update(updateObj);
+        alert("Profaili imesasishwa kikamilifu!");
+        location.reload();
+    }
+
+    async function changePassword() {
+        const pass = document.getElementById('newPass').value.trim();
+        if(pass.length < 6) return alert("Neno la siri linapaswa kuwa na angalau herufi 6!");
+
+        try {
+            await auth.currentUser.updatePassword(pass);
+            alert("Neno la siri limebadilishwa kikamilifu!");
+            document.getElementById('newPass').value = '';
+        } catch(e) { alert("Hitilafu: " + e.message); }
+    }
+
+    async function addInventoryItem() {
+        const name = document.getElementById('invName').value.trim();
+        const buyPrice = parseFloat(document.getElementById('invBuyPrice').value) || 0;
+        const sellPrice = parseFloat(document.getElementById('invSellPrice').value) || 0;
+        const qty = parseInt(document.getElementById('invQty').value) || 0;
+
+        if(!name) return alert("Weka jina la kifaa!");
+
+        await db.ref('inventory').push({ name, buyPrice, sellPrice, qty });
+        alert("Kifaa kimeongezwa stoku!");
+        document.getElementById('invName').value = '';
+        document.getElementById('invBuyPrice').value = '';
+        document.getElementById('invSellPrice').value = '';
+        document.getElementById('invQty').value = '';
+        loadInventory();
+    }
+
+    async function loadInventory() {
+        const tbody = document.getElementById('inventoryTableBody');
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Inapakia stoku...</td></tr>`;
+
+        const snap = await db.ref('inventory').once('value');
+        const items = snap.val();
+        if(!items) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Hakuna vifaa vilivyopo stoku.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        for(let id in items) {
+            let item = items[id];
+            let stockDisplay = item.qty;
+            if(item.qty <= 5) {
+                stockDisplay = `${item.qty} <span class="badge-low-stock">(Inapungua!)</span>`;
+            }
+
+            html += `<tr>
+                <td>${item.name}</td>
+                <td>${item.buyPrice.toLocaleString()}</td>
+                <td>${item.sellPrice.toLocaleString()}</td>
+                <td>${stockDisplay}</td>
+            </tr>`;
+        }
+        tbody.innerHTML = html;
+    }
+
+    async function loadItemDropdowns() {
+        const snap = await db.ref('inventory').once('value');
+        const items = snap.val();
+        let options = '<option value="">Chagua Kifaa</option>';
+        if(items) {
+            for(let id in items) {
+                options += `<option value="${id}" data-price="${items[id].sellPrice}" data-buy="${items[id].buyPrice}" data-qty="${items[id].qty}">${items[id].name} (Salio: ${items[id].qty})</option>`;
+            }
+        }
+        if(document.getElementById('purItemSelect')) document.getElementById('purItemSelect').innerHTML = options;
+        if(document.getElementById('posItemSelect')) document.getElementById('posItemSelect').innerHTML = options;
+    }
+
+    async function recordPurchase() {
+        const itemId = document.getElementById('purItemSelect').value;
+        const qty = parseInt(document.getElementById('purQty').value) || 0;
+        const totalCost = parseFloat(document.getElementById('purTotalCost').value) || 0;
+
+        if(!itemId || qty <= 0) return alert("Tafadhali chagua kifaa na uweke idadi sahihi!");
+
+        const itemRef = db.ref('inventory/' + itemId);
+        const snap = await itemRef.once('value');
+        const item = snap.val();
+
+        if(item) {
+            const newQty = item.qty + qty;
+            await itemRef.update({ qty: newQty });
+            await db.ref('purchases').push({ itemId, itemName: item.name, qty, totalCost, timestamp: Date.now() });
+            alert("Manunuzi yamerekodiwa na stoku imeongezeka!");
+            document.getElementById('purQty').value = '';
+            document.getElementById('purTotalCost').value = '';
+            loadItemDropdowns();
+        }
     }
 
     function updatePOSPrice() {
@@ -673,181 +802,144 @@
         document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh " + total.toLocaleString();
     }
 
-    // POS PROCESS SALE WITH RECEIPT MODAL
-    function processSale() {
+    let lastSaleData = null;
+
+    async function processSale() {
         const select = document.getElementById('posItemSelect');
         const itemId = select.value;
-        const customer = document.getElementById('posCustomer').value.trim() || "Mteja wa Kawaida";
-        const qtySold = parseInt(document.getElementById('posQty').value);
-
-        if(!itemId || isNaN(qtySold) || qtySold <= 0) {
-            return alert("Chagua kifaa na uweke idadi sahihi ya kuuza!");
-        }
-
         const opt = select.options[select.selectedIndex];
+        const customer = document.getElementById('posCustomer').value.trim();
+        const qty = parseInt(document.getElementById('posQty').value) || 0;
+        const price = parseFloat(document.getElementById('posPrice').value) || 0;
+
+        if(!itemId || !customer || qty <= 0) return alert("Jaza taarifa zote za mauzo vizuri!");
+
+        const currentStock = parseInt(opt.getAttribute('data-qty')) || 0;
+        if(qty > currentStock) return alert("Salio halitoshi stoku! Salio lililopo ni: " + currentStock);
+
         const itemName = opt.text.split(' (')[0];
-        const unitPrice = parseFloat(opt.getAttribute('data-price'));
-        const currentQty = parseInt(opt.getAttribute('data-qty'));
+        const totalPrice = qty * price;
+        const buyPrice = parseFloat(opt.getAttribute('data-buy')) || 0;
+        const totalCOGS = qty * buyPrice;
 
-        if(qtySold > currentQty) {
-            return alert("⚠️ Idadi unayotaka kuuza inazidi salio lililopo stoku (" + currentQty + ")!");
-        }
+        const newStock = currentStock - qty;
+        await db.ref('inventory/' + itemId).update({ qty: newStock });
+        await db.ref('sales').push({ itemId, itemName, customer, qty, unitPrice: price, totalPrice, totalCOGS, timestamp: Date.now() });
 
-        const totalRevenue = qtySold * unitPrice;
-        const saleDate = new Date().toISOString();
+        lastSaleData = { customer, itemName, qty, unitPrice: price, totalPrice, date: new Date().toLocaleString() };
+        showReceiptModal(lastSaleData);
 
-        // Update Stock Balance
-        db.ref('inventory/' + itemId).update({ qty: currentQty - qtySold }).then(() => {
-            // Save Sale Record
-            db.ref('sales').push({
-                itemId, itemName, customer, qty: qtySold, unitPrice, total: totalRevenue, date: saleDate
-            });
+        document.getElementById('posCustomer').value = '';
+        document.getElementById('posQty').value = '';
+        document.getElementById('posPrice').value = '';
+        document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh 0";
+        loadItemDropdowns();
+    }
 
-            // Show Receipt Modal
-            document.getElementById('recDate').innerText = new Date().toLocaleString();
-            document.getElementById('recCustomer').innerText = customer;
-            document.getElementById('recItemName').innerText = itemName;
-            document.getElementById('recQty').innerText = qtySold;
-            document.getElementById('recUnitPrice').innerText = unitPrice.toLocaleString();
-            document.getElementById('recTotalPrice').innerText = totalRevenue.toLocaleString();
-            
-            document.getElementById('receiptModal').style.display = 'flex';
-
-            // Reset inputs
-            document.getElementById('posCustomer').value = '';
-            document.getElementById('posQty').value = '';
-            document.getElementById('posPrice').value = '';
-            document.getElementById('posTotalDisplay').innerText = 'Jumla: Tsh 0';
-            loadItemDropdowns();
-        }).catch(e => alert("Hitilafu kwenye mauzo: " + e.message));
+    function showReceiptModal(data) {
+        document.getElementById('recDate').innerText = data.date;
+        document.getElementById('recCustomer').innerText = data.customer;
+        document.getElementById('recItemName').innerText = data.itemName;
+        document.getElementById('recQty').innerText = data.qty;
+        document.getElementById('recUnitPrice').innerText = data.unitPrice.toLocaleString();
+        document.getElementById('recTotalPrice').innerText = data.totalPrice.toLocaleString();
+        document.getElementById('receiptModal').style.display = 'flex';
     }
 
     function closeReceiptModal() {
         document.getElementById('receiptModal').style.display = 'none';
     }
 
-    function recordPurchase() {
-        const itemId = document.getElementById('purItemSelect').value;
-        const qty = parseInt(document.getElementById('purQty').value);
-        const totalCost = parseFloat(document.getElementById('purTotalCost').value);
-
-        if(!itemId || isNaN(qty) || isNaN(totalCost)) return alert("Jaza taarifa zote za manunuzi!");
-
-        db.ref('inventory/' + itemId).once('value', snap => {
-            if(snap.exists()) {
-                const currentQty = snap.val().qty;
-                db.ref('inventory/' + itemId).update({ qty: currentQty + qty });
-                db.ref('purchases').push({ itemId, qty, totalCost, date: new Date().toISOString() });
-                alert("Manunuzi yamerekodiwa kikamilifu!");
-                document.getElementById('purQty').value = '';
-                document.getElementById('purTotalCost').value = '';
-            }
-        });
-    }
-
-    function recordExpense() {
+    async function recordExpense() {
         const desc = document.getElementById('expDesc').value.trim();
-        const amount = parseFloat(document.getElementById('expAmount').value);
-        if(!desc || isNaN(amount)) return alert("Jaza maelezo na kiasi cha gharama!");
+        const amount = parseFloat(document.getElementById('expAmount').value) || 0;
 
-        db.ref('expenses').push({ desc, amount, date: new Date().toISOString() }).then(() => {
-            alert("Gharama imehifadhiwa!");
-            document.getElementById('expDesc').value = '';
-            document.getElementById('expAmount').value = '';
-        });
+        if(!desc || amount <= 0) return alert("Weka maelezo na kiasi sahihi cha gharama!");
+
+        await db.ref('expenses').push({ desc, amount, timestamp: Date.now() });
+        alert("Gharama imehifadhiwa!");
+        document.getElementById('expDesc').value = '';
+        document.getElementById('expAmount').value = '';
     }
 
-    function loadFinancialReport() {
-        Promise.all([
-            db.ref('sales').once('value'),
-            db.ref('purchases').once('value'),
-            db.ref('expenses').once('value')
-        ]).then(([salesSnap, purSnap, expSnap]) => {
-            let totalRevenue = 0;
-            let totalCOGS = 0;
-            let totalExpenses = 0;
+    async function loadFinancialReport() {
+        const salesSnap = await db.ref('sales').once('value');
+        const sales = salesSnap.val() || {};
+        let totalRevenue = 0;
+        let totalCOGS = 0;
+        for(let id in sales) {
+            totalRevenue += sales[id].totalPrice || 0;
+            totalCOGS += sales[id].totalCOGS || 0;
+        }
 
-            salesSnap.forEach(child => { totalRevenue += child.val().total || 0; });
-            purSnap.forEach(child => { totalCOGS += child.val().totalCost || 0; });
-            expSnap.forEach(child => { totalExpenses += child.val().amount || 0; });
+        const expSnap = await db.ref('expenses').once('value');
+        const expenses = expSnap.val() || {};
+        let totalExpenses = 0;
+        for(let id in expenses) {
+            totalExpenses += expenses[id].amount || 0;
+        }
 
-            const netProfit = totalRevenue - (totalCOGS + totalExpenses);
+        const netProfit = totalRevenue - (totalCOGS + totalExpenses);
 
-            document.getElementById('repRevenue').innerText = totalRevenue.toLocaleString();
-            document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString();
-            document.getElementById('repExpenses').innerText = totalExpenses.toLocaleString();
-            
-            const netEl = document.getElementById('repNetProfit');
-            netEl.innerText = netProfit.toLocaleString();
-            netEl.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+        document.getElementById('repRevenue').innerText = totalRevenue.toLocaleString();
+        document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString();
+        document.getElementById('repExpenses').innerText = totalExpenses.toLocaleString();
+        
+        const netProfitEl = document.getElementById('repNetProfit');
+        netProfitEl.innerText = netProfit.toLocaleString();
+        netProfitEl.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+
+        // Render Chart
+        renderFinancialChart(totalRevenue, totalCOGS, totalExpenses, netProfit);
+    }
+
+    function renderFinancialChart(revenue, cogs, expenses, netProfit) {
+        const ctx = document.getElementById('financialChart').getContext('2d');
+        
+        if(financialChartInstance) {
+            financialChartInstance.destroy();
+        }
+
+        financialChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Mapato (Revenue)', 'Gharama za Vifaa', 'Gharama za Ziada', 'Faida Halisi'],
+                datasets: [{
+                    label: 'Kiasi (Tsh)',
+                    data: [revenue, cogs, expenses, netProfit],
+                    backgroundColor: [
+                        'rgba(67, 97, 238, 0.7)',
+                        'rgba(255, 159, 28, 0.7)',
+                        'rgba(231, 29, 54, 0.7)',
+                        'rgba(46, 196, 182, 0.7)'
+                    ],
+                    borderColor: [
+                        '#4361ee',
+                        '#ff9f1c',
+                        '#e71d36',
+                        '#2ec4b6'
+                    ],
+                    borderWidth: 1.5,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
         });
     }
 
     function printOfficialReport() {
         window.print();
-    }
-
-    function loadAllUsersForAdmin() {
-        db.ref('users').once('value', snap => {
-            const tbody = document.getElementById('allUsersTableBody');
-            tbody.innerHTML = '';
-            snap.forEach(child => {
-                const user = child.val();
-                const uid = child.key;
-                const statusText = user.isBlocked ? '<span style="color:var(--danger); font-weight:bold;">Imezuiwa</span>' : '<span style="color:var(--success); font-weight:bold;">Hai</span>';
-                const actionBtn = user.isBlocked ? 
-                    `<button onclick="toggleBlockUser('${uid}', false)" style="background:var(--success); padding:6px 10px; font-size:0.8em; margin:0;">Ruhusu</button>` : 
-                    `<button onclick="toggleBlockUser('${uid}', true)" style="background:var(--danger); padding:6px 10px; font-size:0.8em; margin:0;">Zuia (Block)</button>`;
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${user.name || '-'}</td>
-                        <td>${user.email || '-'}</td>
-                        <td style="text-transform:uppercase;">${user.role || 'user'}</td>
-                        <td>${statusText}</td>
-                        <td>${actionBtn}</td>
-                    </tr>
-                `;
-            });
-        });
-    }
-
-    function toggleBlockUser(uid, blockState) {
-        db.ref('users/' + uid).update({ isBlocked: blockState }).then(() => {
-            alert("Hali ya mtumiaji imebadilishwa mafanikio.");
-            loadAllUsersForAdmin();
-        });
-    }
-
-    function loadProfileInputs() {
-        if(!currentUserData) return;
-        document.getElementById('profName').value = currentUserData.name || '';
-        document.getElementById('dispUserRole').innerText = currentUserData.role || 'user';
-        document.getElementById('dispUserEmail').innerText = currentUserData.email || '-';
-        if(currentUserData.photoUrl) {
-            document.getElementById('profilePreviewImg').src = currentUserData.photoUrl;
-        }
-    }
-
-    function updateProfileData() {
-        const name = document.getElementById('profName').value.trim();
-        const uid = auth.currentUser.uid;
-        let updateData = { name };
-        if(base64ImageString) updateData.photoUrl = base64ImageString;
-
-        db.ref('users/' + uid).update(updateData).then(() => {
-            alert("Profaili imesasishwa kikamilifu!");
-            checkRoleAndRoute(uid);
-        });
-    }
-
-    function changePassword() {
-        const newPass = document.getElementById('newPass').value.trim();
-        if(newPass.length < 6) return alert("Neno la siri linapaswa kuwa na angalau herufi 6!");
-        auth.currentUser.updatePassword(newPass).then(() => {
-            alert("Neno la siri limebadilishwa kikamilifu!");
-            document.getElementById('newPass').value = '';
-        }).catch(e => alert("Hitilafu: " + e.message));
     }
 </script>
 </body>
