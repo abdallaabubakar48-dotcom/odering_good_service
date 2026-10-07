@@ -94,9 +94,6 @@
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f8fafc; }
 
-        .btn-delete-sm { padding: 6px 10px; background: var(--danger); color: white; border: none; border-radius: 6px; font-size: 0.8em; cursor: pointer; font-weight: 600; width: auto; margin-top: 0; box-shadow: none; }
-        .btn-delete-sm:hover { opacity: 0.85; }
-
         /* PROFILE STYLES */
         .profile-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
         .profile-header-banner { width: 100%; height: 130px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 12px 12px 0 0; position: relative; margin-bottom: 55px; }
@@ -171,7 +168,6 @@
             </div>
         </div>
         <div class="topbar-right">
-            <!-- SEHEMU YA KUBADILI LUGHA JUU (TOPBAR) -->
             <select id="globalLangSelect" onchange="changeLanguage(this.value)" style="width: auto; margin: 0; padding: 6px 10px; font-size: 0.85em;">
                 <option value="sw">Kiswahili</option>
                 <option value="en">English</option>
@@ -228,7 +224,6 @@
                     <label style="font-size: 0.85em; font-weight: 600;" data-i18n="lblPass">Neno la Siri</label>
                     <input type="password" id="signPass" placeholder="Angalau herufi 6">
 
-                    <!-- SEHEMU MPYA YA KUCHAGUA LUGHA WAKATI WA USAJILI -->
                     <label style="font-size: 0.85em; font-weight: 600;" data-i18n="lblChooseLang">Chagua Lugha Unayopendelea</label>
                     <select id="regLangSelect">
                         <option value="sw">Kiswahili</option>
@@ -241,7 +236,7 @@
             </div>
         </div>
 
-        <!-- UKURASA MPYA WA ADMIN: KUWEKA PROFAILI YA MFUMO NA LOGO (SYSTEM PROFILE) -->
+        <!-- UKURASA WA ADMIN: SYSTEM PROFILE -->
         <div id="pageSystemProfile" class="page">
             <div class="card" style="max-width: 600px;">
                 <h2><i class="fa fa-cogs"></i> Mipangilio na Profaili ya Mfumo (Admin)</h2>
@@ -335,7 +330,6 @@
                         <label style="font-size: 0.85em; font-weight: 600; display: block; text-align: left; margin-top: 10px;">Jina Kamili:</label>
                         <input type="text" id="profName" placeholder="Jina lako kamili">
 
-                        <!-- CHAGUO LA LUGHA KWENYE PROFAILI YA MTUMIAJI -->
                         <label style="font-size: 0.85em; font-weight: 600; display: block; text-align: left; margin-top: 10px;">Lugha Unayopendelea:</label>
                         <select id="userPrefLang">
                             <option value="sw">Kiswahili</option>
@@ -359,7 +353,7 @@
             </div>
         </div>
 
-        <!-- SEHEMU ZA ZIADA ZA MFUMO (Inventory, POS, Purchases, Expenses, Financials, Reset) ZINAENDELEA HAPA KAMA KAWAIDA -->
+        <!-- INVENTORY PAGE -->
         <div id="pageInventory" class="page">
             <div class="card" style="max-width: 850px;">
                 <h2>Orodha ya Vifaa na Stoku</h2>
@@ -373,13 +367,13 @@
             </div>
         </div>
 
+        <!-- POS PAGE -->
         <div id="pagePOS" class="page">
             <div class="card" style="max-width: 600px;">
                 <h2>Moduli ya Mauzo (POS)</h2>
                 <p class="auth-subtitle">Fanya mauzo ya bidhaa kwa wateja</p>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -459,7 +453,6 @@
         localStorage.setItem('system_lang', lang);
         document.getElementById('globalLangSelect').value = lang;
         
-        // Badilisha maandishi yote yenye kitambulisho cha data-i18n
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) {
@@ -468,7 +461,6 @@
         });
     }
 
-    // Usimamizi wa Logo na Profaili ya Mfumo kupitia Admin
     let tempSystemLogoBase64 = "";
 
     function previewSystemLogo(event) {
@@ -498,7 +490,7 @@
 
         localStorage.setItem('system_profile', JSON.stringify(systemData));
         applySystemProfile();
-        alert("Profaili ya mfumo imehifadhiwa mafanikio!");
+        alert("Profaili ya mfumo imehifadhiwa kwa mafanikio!");
     }
 
     function applySystemProfile() {
@@ -513,22 +505,19 @@
                 document.getElementById('sysDescBanner').innerText = data.description;
             }
             if (data.logo) {
-                const brandImg = document.getElementById('brandLogoImg');
-                brandImg.src = data.logo;
-                brandImg.style.display = 'block';
+                const brandLogo = document.getElementById('brandLogoImg');
+                brandLogo.src = data.logo;
+                brandLogo.style.display = 'block';
                 document.getElementById('logoTextPlaceholder').style.display = 'none';
-
-                const sysPrev = document.getElementById('sysPreviewLogo');
-                if(sysPrev) {
-                    sysPrev.src = data.logo;
-                    sysPrev.style.display = 'block';
-                    document.getElementById('sysLogoPlaceholderText').style.display = 'none';
-                }
             }
         }
     }
 
-    // Utendaji wa kubadilisha kurasa na menyu
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(pageId).classList.add('active-page');
+    }
+
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('sidebar-overlay').classList.toggle('active');
@@ -540,14 +529,10 @@
     }
 
     function navigateTo(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-        document.getElementById(pageId).classList.add('active-page');
-        if (window.innerWidth < 768) toggleSidebar();
-    }
-
-    function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-        document.getElementById(pageId).classList.add('active-page');
+        showPage(pageId);
+        if(window.innerWidth <= 768) {
+            toggleSidebar();
+        }
     }
 
     window.onload = function() {
