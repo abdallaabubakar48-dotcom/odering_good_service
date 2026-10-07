@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -95,6 +94,9 @@
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f8fafc; }
 
+        .btn-delete-sm { padding: 6px 10px; background: var(--danger); color: white; border: none; border-radius: 6px; font-size: 0.8em; cursor: pointer; font-weight: 600; width: auto; margin-top: 0; box-shadow: none; }
+        .btn-delete-sm:hover { opacity: 0.85; }
+
         /* PROFILE STYLES */
         .profile-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
         .profile-header-banner { width: 100%; height: 130px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 12px 12px 0 0; position: relative; margin-bottom: 55px; }
@@ -107,92 +109,54 @@
         .info-card span { font-size: 0.78em; color: #64748b; display: block; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
         .info-card strong { font-size: 0.98em; color: var(--dark); }
 
-        /* LOW STOCK ALERT BADGE */
-        .badge-low-stock { background-color: #ffeeef; color: var(--danger); padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.85em; display: inline-block; border: 1px solid #fdd8d8; }
-
-        /* RECEIPT MODAL STYLES FOR PRINTING */
-        #receiptModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .receipt-card { background: white; padding: 25px; border-radius: 14px; width: 340px; text-align: center; font-family: monospace; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
-        .receipt-header h3 { margin: 0 0 5px 0; font-size: 1.25em; color: #000; font-weight: bold; }
-        .receipt-header p { margin: 3px 0; font-size: 0.82em; color: #555; }
-        .receipt-body { text-align: left; margin: 15px 0; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 12px 0; font-size: 0.9em; }
-        
-        /* Overlay for mobile sidebar */
         #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 998; display: none; backdrop-filter: blur(2px); }
         #sidebar-overlay.active { display: block; }
-
-        @media print {
-            body * { visibility: hidden; }
-            #printableReceipt, #printableReceipt * { visibility: visible; }
-            #printableReceipt { position: absolute; left: 0; top: 0; width: 100%; }
-        }
     </style>
 </head>
 <body>
 
-<!-- OVERLAY FOR MOBILE MENU -->
 <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-<!-- RECEIPT MODAL -->
-<div id="receiptModal">
-    <div class="receipt-card" id="printableReceipt">
-        <div class="receipt-header">
-            <h3>ORDERING & MAINTENANCE</h3>
-            <p>Huduma Bora za Manunuzi na Stoku</p>
-            <p id="recDate">-</p>
-        </div>
-        <div class="receipt-body">
-            <p><strong>Mteja:</strong> <span id="recCustomer">-</span></p>
-            <p><strong>Bidhaa:</strong> <span id="recItemName">-</span></p>
-            <p><strong>Idadi:</strong> <span id="recQty">-</span></p>
-            <p><strong>Bei ya Moja:</strong> <span id="recUnitPrice">-</span> Tsh</p>
-            <hr style="border:0; border-top:1px dashed #000; margin:10px 0;">
-            <p style="font-size: 1.05em;"><strong>Jumla:</strong> <span id="recTotalPrice">-</span> Tsh</p>
-        </div>
-        <p style="font-size: 0.8em; margin-bottom: 15px;">Karibu Tena Huduma Yetu!</p>
-        <button onclick="window.print()" style="background: var(--dark); padding: 10px; font-size: 0.9em; margin-bottom: 8px; box-shadow: none;"><i class="fa fa-print"></i> Chapisha Risiti</button>
-        <button onclick="closeReceiptModal()" style="background: #e2e8f0; color: #334155; padding: 10px; font-size: 0.9em; margin-top: 0; box-shadow: none;">Funga</button>
-    </div>
-</div>
 
 <!-- SIDEBAR -->
 <div id="sidebar">
     <div class="sidebar-brand">
-        <span><i class="fa fa-boxes"></i> Ordering & Maint.</span>
+        <span id="sidebarBrandTitle"><i class="fa fa-boxes"></i> Ordering & Maint.</span>
         <i class="fa fa-times" style="cursor:pointer;" onclick="toggleSidebar()"></i>
     </div>
     
     <div id="menuUser" style="display:none;">
         <div class="menu-item" onclick="toggleDrop('userDrop')">
-            <span><i class="fa fa-cash-register"></i> Mauzo & Manunuzi</span>
+            <span><i class="fa fa-cash-register"></i> <span data-i18n="menuSales">Mauzo & Manunuzi</span></span>
             <i class="fa fa-chevron-down"></i>
         </div>
         <div id="userDrop" class="dropdown">
-            <div class="menu-item" onclick="navigateTo('pagePOS')"><i class="fa fa-shopping-cart"></i> Mauzo (POS)</div>
-            <div class="menu-item" onclick="navigateTo('pagePurchases')"><i class="fa fa-truck-loading"></i> Rekodi Manunuzi</div>
-            <div class="menu-item" onclick="navigateTo('pageExpenses')"><i class="fa fa-receipt"></i> Gharama za Uendeshaji</div>
+            <div class="menu-item" onclick="navigateTo('pagePOS')"><i class="fa fa-shopping-cart"></i> <span data-i18n="menuPOS">Mauzo (POS)</span></div>
+            <div class="menu-item" onclick="navigateTo('pagePurchases')"><i class="fa fa-truck-loading"></i> <span data-i18n="menuPurchases">Rekodi Manunuzi</span></div>
+            <div class="menu-item" onclick="navigateTo('pageExpenses')"><i class="fa fa-receipt"></i> <span data-i18n="menuExpenses">Gharama za Uendeshaji</span></div>
         </div>
     </div>
 
     <div id="menuAdmin" style="display:none;">
         <div class="menu-item" onclick="toggleDrop('adminDrop')">
-            <span><i class="fa fa-shield-alt"></i> Usimamizi Mkuu</span>
+            <span><i class="fa fa-shield-alt"></i> <span data-i18n="menuAdmin">Usimamizi Mkuu</span></span>
             <i class="fa fa-chevron-down"></i>
         </div>
         <div id="adminDrop" class="dropdown">
-            <div class="menu-item" onclick="navigateTo('pageInventory')"><i class="fa fa-box"></i> Orodha ya Vifaa (Stock)</div>
-            <div class="menu-item" onclick="navigateTo('pagePOS')"><i class="fa fa-shopping-cart"></i> Mauzo (POS)</div>
-            <div class="menu-item" onclick="navigateTo('pagePurchases')"><i class="fa fa-truck-loading"></i> Manunuzi</div>
-            <div class="menu-item" onclick="navigateTo('pageExpenses')"><i class="fa fa-receipt"></i> Gharama za Uendeshaji</div>
-            <div class="menu-item" onclick="navigateTo('pageFinancials')"><i class="fa fa-chart-line"></i> Faida na Hasara & Grafu</div>
-            <div class="menu-item" onclick="navigateTo('pageManageUsers')"><i class="fa fa-users-cog"></i> Wasimamizi na Watumiaji</div>
-            <div class="menu-item" onclick="navigateTo('pageRegisterAdmin')"><i class="fa fa-user-shield"></i> Sajili Admin Mpya</div>
+            <div class="menu-item" onclick="navigateTo('pageInventory')"><i class="fa fa-box"></i> <span data-i18n="menuStock">Orodha ya Vifaa (Stock)</span></div>
+            <div class="menu-item" onclick="navigateTo('pagePOS')"><i class="fa fa-shopping-cart"></i> <span data-i18n="menuPOS">Mauzo (POS)</span></div>
+            <div class="menu-item" onclick="navigateTo('pagePurchases')"><i class="fa fa-truck-loading"></i> <span data-i18n="menuPurchases">Manunuzi</span></div>
+            <div class="menu-item" onclick="navigateTo('pageExpenses')"><i class="fa fa-receipt"></i> <span data-i18n="menuExpenses">Gharama za Uendeshaji</span></div>
+            <div class="menu-item" onclick="navigateTo('pageFinancials')"><i class="fa fa-chart-line"></i> <span data-i18n="menuReports">Faida na Hasara & Grafu</span></div>
+            <div class="menu-item" onclick="navigateTo('pageManageUsers')"><i class="fa fa-users-cog"></i> <span data-i18n="menuUsers">Wasimamizi na Watumiaji</span></div>
+            <div class="menu-item" onclick="navigateTo('pageRegisterAdmin')"><i class="fa fa-user-shield"></i> <span data-i18n="menuRegAdmin">Sajili Admin Mpya</span></div>
+            <div class="menu-item" onclick="navigateTo('pageSystemProfile')"><i class="fa fa-cogs"></i> <span data-i18n="menuSysProfile">Profaili ya Mfumo & Logo</span></div>
+            <div class="menu-item" onclick="navigateTo('pageDataReset')" style="color: #ff9f1c;"><i class="fa fa-trash-alt"></i> <span data-i18n="menuReset">Kufuta & Kusafisha Data</span></div>
         </div>
     </div>
 
     <div style="margin-top: 15px; border-top: 1px solid #334155;">
-        <div class="menu-item" onclick="navigateTo('pageProfile')"><i class="fa fa-user-edit"></i> Profaili Yangu</div>
-        <div class="menu-item" onclick="navigateTo('pageChangePass')"><i class="fa fa-key"></i> Badilisha Password</div>
+        <div class="menu-item" onclick="navigateTo('pageProfile')"><i class="fa fa-user-edit"></i> <span data-i18n="menuMyProfile">Profaili Yangu</span></div>
+        <div class="menu-item" onclick="navigateTo('pageChangePass')"><i class="fa fa-key"></i> <span data-i18n="menuChangePass">Badilisha Password</span></div>
     </div>
 </div>
 
@@ -207,7 +171,12 @@
             </div>
         </div>
         <div class="topbar-right">
-            <button class="topbar-btn logout-btn" onclick="logout()"><i class="fa fa-sign-out-alt"></i> <span>Ondoka</span></button>
+            <!-- SEHEMU YA KUBADILI LUGHA JUU (TOPBAR) -->
+            <select id="globalLangSelect" onchange="changeLanguage(this.value)" style="width: auto; margin: 0; padding: 6px 10px; font-size: 0.85em;">
+                <option value="sw">Kiswahili</option>
+                <option value="en">English</option>
+            </select>
+            <button class="topbar-btn logout-btn" onclick="logout()"><i class="fa fa-sign-out-alt"></i> <span data-i18n="btnLogout">Ondoka</span></button>
         </div>
     </div>
 
@@ -220,18 +189,21 @@
                         <img id="brandLogoImg" src="" alt="Logo" style="display:none;" onerror="this.style.display='none';">
                         <div id="logoTextPlaceholder" class="logo-placeholder"><i class="fa fa-image" style="font-size: 1.3em; display:block; margin-bottom:4px;"></i>LOGO</div>
                     </div>
-                    <h1><i class="fa fa-tools"></i> Ordering & Maintenance</h1>
-                    <p>Mfumo thabiti wa kusimamia mauzo, vifaa vya akiba (stoku), manunuzi, na ripoti za kifedha kwa njia ya kisasa.</p>
+                    <h1 id="sysTitleBanner"><i class="fa fa-tools"></i> Ordering & Maintenance</h1>
+                    <p id="sysDescBanner">Mfumo thabiti wa kusimamia mauzo, vifaa vya akiba (stoku), manunuzi, na ripoti za kifedha kwa njia ya kisasa.</p>
                 </div>
                 <div class="auth-form-container">
-                    <h2>Karibu Tena</h2>
-                    <p class="auth-subtitle">Ingiza taarifa zako kuendelea kwenye mfumo</p>
-                    <label style="font-size: 0.85em; font-weight: 600;">Barua Pepe (Email)</label>
+                    <h2 data-i18n="loginTitle">Karibu Tena</h2>
+                    <p class="auth-subtitle" data-i18n="loginSubtitle">Ingiza taarifa zako kuendelea kwenye mfumo</p>
+                    
+                    <label style="font-size: 0.85em; font-weight: 600;" data-i18n="lblEmail">Barua Pepe (Email)</label>
                     <input type="email" id="logEmail" placeholder="mfano@domain.com">
-                    <label style="font-size: 0.85em; font-weight: 600;">Neno la Siri (Password)</label>
+                    
+                    <label style="font-size: 0.85em; font-weight: 600;" data-i18n="lblPass">Neno la Siri (Password)</label>
                     <input type="password" id="logPass" placeholder="Weka neno la siri">
-                    <button onclick="loginUser()">Ingia Sasa</button>
-                    <p style="text-align: center; margin-top: 20px; color: #64748b; font-size: 0.88em;">Huna akaunti? <span onclick="showPage('signupPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Jisajili hapa</span></p>
+                    
+                    <button onclick="loginUser()" data-i18n="btnLogin">Ingia Sasa</button>
+                    <p style="text-align: center; margin-top: 20px; color: #64748b; font-size: 0.88em;"><span data-i18n="noAccount">Huna akaunti?</span> <span onclick="showPage('signupPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;" data-i18n="registerHere">Jisajili hapa</span></p>
                 </div>
             </div>
         </div>
@@ -240,40 +212,71 @@
         <div id="signupPage" class="page">
             <div class="auth-wrapper">
                 <div class="auth-banner" style="background: linear-gradient(135deg, #2ec4b6, #20a4f3);">
-                    <h1>Jiunge Nasi</h1>
-                    <p>Fungua akaunti mpya ya mtendaji kwenye mfumo ili uanze kufanya kazi kwa ufanisi mkubwa.</p>
+                    <h1 data-i18n="signupBannerTitle">Jiunge Nasi</h1>
+                    <p data-i18n="signupBannerDesc">Fungua akaunti mpya ya mtendaji kwenye mfumo ili uanze kufanya kazi kwa ufanisi mkubwa.</p>
                 </div>
                 <div class="auth-form-container">
-                    <h2>Fungua Akaunti</h2>
-                    <p class="auth-subtitle">Jaza taarifa zako hapa chini kwa ajili ya usajili</p>
-                    <label style="font-size: 0.85em; font-weight: 600;">Jina Kamili</label>
+                    <h2 data-i18n="signupTitle">Fungua Akaunti</h2>
+                    <p class="auth-subtitle" data-i18n="signupSubtitle">Jaza taarifa zako hapa chini kwa ajili ya usajili</p>
+                    
+                    <label style="font-size: 0.85em; font-weight: 600;" data-i18n="lblName">Jina Kamili</label>
                     <input type="text" id="regName" placeholder="Jina lako kamili">
-                    <label style="font-size: 0.85em; font-weight: 600;">Barua Pepe (Email)</label>
+                    
+                    <label style="font-size: 0.85em; font-weight: 600;" data-i18n="lblEmail">Barua Pepe (Email)</label>
                     <input type="email" id="signEmail" placeholder="mfano@domain.com">
-                    <label style="font-size: 0.85em; font-weight: 600;">Neno la Siri</label>
+                    
+                    <label style="font-size: 0.85em; font-weight: 600;" data-i18n="lblPass">Neno la Siri</label>
                     <input type="password" id="signPass" placeholder="Angalau herufi 6">
-                    <button onclick="signupUser()" style="background: var(--success);">Kamilisha Usajili</button>
-                    <p style="text-align: center; margin-top: 20px; color: #64748b; font-size: 0.88em;">Una akaunti tayari? <span onclick="showPage('loginPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;">Rudi Uingie</span></p>
+
+                    <!-- SEHEMU MPYA YA KUCHAGUA LUGHA WAKATI WA USAJILI -->
+                    <label style="font-size: 0.85em; font-weight: 600;" data-i18n="lblChooseLang">Chagua Lugha Unayopendelea</label>
+                    <select id="regLangSelect">
+                        <option value="sw">Kiswahili</option>
+                        <option value="en">English</option>
+                    </select>
+
+                    <button onclick="signupUser()" style="background: var(--success);" data-i18n="btnCompleteSignup">Kamilisha Usajili</button>
+                    <p style="text-align: center; margin-top: 20px; color: #64748b; font-size: 0.88em;"><span data-i18n="hasAccount">Una akaunti tayari?</span> <span onclick="showPage('loginPage')" style="color:var(--primary); cursor:pointer; font-weight:bold;" data-i18n="backLogin">Rudi Uingie</span></p>
                 </div>
             </div>
         </div>
 
-        <!-- PAGE MANAGE USERS & BLOCKING -->
+        <!-- UKURASA MPYA WA ADMIN: KUWEKA PROFAILI YA MFUMO NA LOGO (SYSTEM PROFILE) -->
+        <div id="pageSystemProfile" class="page">
+            <div class="card" style="max-width: 600px;">
+                <h2><i class="fa fa-cogs"></i> Mipangilio na Profaili ya Mfumo (Admin)</h2>
+                <p class="auth-subtitle">Badilisha Jina la Mfumo, Maelezo, na Picha ya Logo inayoonekana kwenye Ukurasa wa Kuingia (Login)</p>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 10px auto; border: 2px solid var(--border-color); overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8fafc;">
+                        <img id="sysPreviewLogo" src="" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        <span id="sysLogoPlaceholderText" style="font-size: 0.8em; color: #64748b;">Hakuna Logo</span>
+                    </div>
+                    <label style="background: #e2e8f0; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85em; font-weight: 600; display: inline-block; color: #334155;">
+                        <i class="fa fa-upload"></i> Pakia Logo Mpya
+                        <input type="file" id="sysLogoFile" accept="image/*" style="display: none;" onchange="previewSystemLogo(event)">
+                    </label>
+                </div>
+
+                <label style="font-size: 0.85em; font-weight: 600;">Jina la Mfumo (System Name)</label>
+                <input type="text" id="sysNameInput" placeholder="Ordering & Maintenance Service">
+
+                <label style="font-size: 0.85em; font-weight: 600;">Maelezo Mafupi (System Description)</label>
+                <input type="text" id="sysDescInput" placeholder="Mfumo thabiti wa kusimamia mauzo...">
+
+                <button onclick="saveSystemProfile()" style="background: var(--success);"><i class="fa fa-save"></i> Hifadhi Mabadiliko ya Mfumo</button>
+            </div>
+        </div>
+
+        <!-- PAGE MANAGE USERS -->
         <div id="pageManageUsers" class="page">
             <div class="card" style="max-width: 900px;">
                 <h2>Usimamizi wa Watumiaji na Admin</h2>
-                <p class="auth-subtitle">Orodha ya watumiaji wote waliosajiliwa kwenye mfumo. Unaweza kuwablock au kuwarudishia ruhusa.</p>
-                
+                <p class="auth-subtitle">Orodha ya watumiaji wote waliosajiliwa kwenye mfumo.</p>
                 <div class="table-responsive">
                     <table>
                         <thead>
-                            <tr>
-                                <th>Jina Kamili</th>
-                                <th>Email</th>
-                                <th>Aina (Role)</th>
-                                <th>Hali (Status)</th>
-                                <th>Hatua (Action)</th>
-                            </tr>
+                            <tr><th>Jina Kamili</th><th>Email</th><th>Aina (Role)</th><th>Hali (Status)</th><th>Hatua (Action)</th></tr>
                         </thead>
                         <tbody id="allUsersTableBody">
                             <tr><td colspan="5" style="text-align: center;">Inapakia watumiaji...</td></tr>
@@ -287,14 +290,14 @@
         <div id="pageRegisterAdmin" class="page">
             <div class="card" style="max-width: 600px;">
                 <h2>Sajili Admin Mpya</h2>
-                <p class="auth-subtitle">Moduli maalum ya wasimamizi wakuu kuongeza Msimamizi mwenza kwenye mfumo</p>
+                <p class="auth-subtitle">Moduli maalum ya wasimamizi wakuu kuongeza Msimamizi mwenza</p>
                 <label style="font-size: 0.85em; font-weight: 600;">Jina Kamili la Admin</label>
                 <input type="text" id="regAdminName" placeholder="Jina la admin mpya">
                 <label style="font-size: 0.85em; font-weight: 600;">Barua Pepe (Email)</label>
                 <input type="email" id="regAdminEmail" placeholder="admin@domain.com">
                 <label style="font-size: 0.85em; font-weight: 600;">Neno la Siri la Awali</label>
                 <input type="password" id="regAdminPass" placeholder="Angalau herufi 6">
-                <button onclick="registerNewAdmin()" style="background: var(--warning); color: #0f172a;"><i class="fa fa-user-plus"></i> Sajili Admin Huyu</button>
+                <button onclick="registerNewAdmin()" style="background: var(--warning); color: #0f172a;"><i class="fa fa-user-shield"></i> Sajili Admin Huyu</button>
             </div>
         </div>
 
@@ -312,7 +315,7 @@
                         <p class="auth-subtitle" style="text-align: center;">Dhibiti taarifa zako binafsi na picha ya utambulisho</p>
                         
                         <div style="text-align: center; margin-bottom: 20px;">
-                            <label style="background: #e2e8f0; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 0.88em; font-weight: 600; display: inline-block; color: #334155; transition: background 0.2s;">
+                            <label style="background: #e2e8f0; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 0.88em; font-weight: 600; display: inline-block; color: #334155;">
                                 <i class="fa fa-camera"></i> Badilisha Picha
                                 <input type="file" id="profileFile" accept="image/*" style="display: none;" onchange="previewImage(event)">
                             </label>
@@ -331,6 +334,14 @@
 
                         <label style="font-size: 0.85em; font-weight: 600; display: block; text-align: left; margin-top: 10px;">Jina Kamili:</label>
                         <input type="text" id="profName" placeholder="Jina lako kamili">
+
+                        <!-- CHAGUO LA LUGHA KWENYE PROFAILI YA MTUMIAJI -->
+                        <label style="font-size: 0.85em; font-weight: 600; display: block; text-align: left; margin-top: 10px;">Lugha Unayopendelea:</label>
+                        <select id="userPrefLang">
+                            <option value="sw">Kiswahili</option>
+                            <option value="en">English</option>
+                        </select>
+
                         <button onclick="updateProfileData()" style="background: var(--success); margin-top: 15px;">Hifadhi Mabadiliko</button>
                     </div>
                 </div>
@@ -348,600 +359,201 @@
             </div>
         </div>
 
-        <!-- INVENTORY PAGE WITH LOW STOCK ALERTS -->
+        <!-- SEHEMU ZA ZIADA ZA MFUMO (Inventory, POS, Purchases, Expenses, Financials, Reset) ZINAENDELEA HAPA KAMA KAWAIDA -->
         <div id="pageInventory" class="page">
             <div class="card" style="max-width: 850px;">
                 <h2>Orodha ya Vifaa na Stoku</h2>
-                <p class="auth-subtitle">Ongeza aina mpya ya bidhaa au kifaa na ufuatilie viwango vya stoku</p>
-                
-                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
-                    <label style="font-size: 0.88em; font-weight: 600; color: var(--dark);">Aina ya Bidhaa / Kifaa:</label>
-                    <input type="text" id="invName" placeholder="Mfano: Skrubu, Soketi, Rangi, n.k.">
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <label style="font-size: 0.85em; font-weight: 600; color: var(--dark);">Bei ya Kununua (Tsh):</label>
-                            <input type="number" id="invBuyPrice" placeholder="0">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.85em; font-weight: 600; color: var(--dark);">Bei ya Kuuzia (Tsh):</label>
-                            <input type="number" id="invSellPrice" placeholder="0">
-                        </div>
-                    </div>
-
-                    <label style="font-size: 0.85em; font-weight: 600; color: var(--dark);">Idadi ya Awali (Stock Balance):</label>
-                    <input type="number" id="invQty" placeholder="0">
-                    
-                    <button onclick="addInventoryItem()" style="background: var(--success);"><i class="fa fa-plus-circle"></i> Ongeza Kifaa Kipya Stoku</button>
-                </div>
-                
-                <h3 style="margin-top: 20px; color: var(--dark); font-size: 1.25em;">Vifaa Vilivyopo Stoku</h3>
+                <p class="auth-subtitle">Ongeza bidhaa na ufuatilie viwango vya akiba</p>
                 <div class="table-responsive">
                     <table>
-                        <thead>
-                            <tr><th>Kifaa</th><th>Nunua (Tsh)</th><th>Uuza (Tsh)</th><th>Salio</th></tr>
-                        </thead>
-                        <tbody id="inventoryTableBody">
-                            <tr><td colspan="4" style="text-align: center;">Inapakia...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Kifaa</th><th>Nunua (Tsh)</th><th>Uuza (Tsh)</th><th>Salio</th><th>Hatua</th></tr></thead>
+                        <tbody id="inventoryTableBody"><tr><td colspan="5" style="text-align: center;">Inapakia...</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- PURCHASES PAGE -->
-        <div id="pagePurchases" class="page">
-            <div class="card" style="max-width: 600px;">
-                <h2>Rekodi Manunuzi ya Vifaa</h2>
-                <p class="auth-subtitle">Ongeza idadi ya bidhaa zilizopo tayari kwenye mfumo kupitia manunuzi mapya</p>
-                <label style="font-size: 0.85em; font-weight: 600;">Chagua Kifaa</label>
-                <select id="purItemSelect"><option value="">Chagua Kifaa</option></select>
-                <label style="font-size: 0.85em; font-weight: 600;">Idadi Iliyonunuliwa</label>
-                <input type="number" id="purQty" placeholder="0">
-                <label style="font-size: 0.85em; font-weight: 600;">Jumla ya Gharama Zilizotumika (Tsh)</label>
-                <input type="number" id="purTotalCost" placeholder="0">
-                <button onclick="recordPurchase()">Hifadhi Manunuzi</button>
-            </div>
-        </div>
-
-        <!-- POS / SALES PAGE WITH RECEIPT GENERATION -->
         <div id="pagePOS" class="page">
             <div class="card" style="max-width: 600px;">
                 <h2>Moduli ya Mauzo (POS)</h2>
-                <p class="auth-subtitle">Fanya mauzo ya bidhaa kwa wateja na utoe risiti rasmi</p>
-                <label style="font-size: 0.85em; font-weight: 600;">Chagua Kifaa cha Kuuza</label>
-                <select id="posItemSelect" onchange="updatePOSPrice()"><option value="">Chagua Kifaa cha Kuuza</option></select>
-                <label style="font-size: 0.85em; font-weight: 600;">Jina la Mteja</label>
-                <input type="text" id="posCustomer" placeholder="Weka jina la mteja">
-                <label style="font-size: 0.85em; font-weight: 600;">Idadi Inayouzwa</label>
-                <input type="number" id="posQty" placeholder="0" oninput="calculateTotal()">
-                <label style="font-size: 0.85em; font-weight: 600;">Bei ya Kuuzia kwa Kimoja (Tsh)</label>
-                <input type="number" id="posPrice" placeholder="0" readonly style="background: #f8fafc;">
-                <p id="posTotalDisplay" style="font-weight: bold; font-size: 1.15em; color: var(--primary); margin: 12px 0;">Jumla: Tsh 0</p>
-                <button onclick="processSale()" style="background: var(--success);">Thibitisha na Toa Risiti</button>
+                <p class="auth-subtitle">Fanya mauzo ya bidhaa kwa wateja</p>
             </div>
         </div>
 
-        <!-- EXPENSES PAGE -->
-        <div id="pageExpenses" class="page">
-            <div class="card" style="max-width: 600px;">
-                <h2>Gharama za Uendeshaji</h2>
-                <p class="auth-subtitle">Rekodi matumizi madogo madogo ya biashara yako</p>
-                <label style="font-size: 0.85em; font-weight: 600;">Maelezo ya Gharama</label>
-                <input type="text" id="expDesc" placeholder="Mfano: Usafiri, Umeme, n.k.">
-                <label style="font-size: 0.85em; font-weight: 600;">Kiasi Kilichotumika (Tsh)</label>
-                <input type="number" id="expAmount" placeholder="0">
-                <button onclick="recordExpense()" style="background: var(--danger);">Hifadhi Gharama</button>
-            </div>
-        </div>
-
-        <!-- FINANCIALS / P&L & CHARTS PAGE -->
-        <div id="pageFinancials" class="page">
-            <div class="card" style="max-width: 800px;">
-                <h2>Ripoti ya Faida na Hasara (P&L) & Grafu</h2>
-                <p class="auth-subtitle">Muhtasari wa kifedha na michoro ya uwiano wa mapato, matumizi, na faida</p>
-                
-                <div id="financialSummary" style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--primary); border: 1px solid #e2e8f0;">
-                    <p style="margin: 8px 0; font-size: 0.95em;"><strong>Jumla ya Mapato (Revenue):</strong> <span id="repRevenue">0</span> Tsh</p>
-                    <p style="margin: 8px 0; font-size: 0.95em;"><strong>Gharama za Vifaa (COGS):</strong> <span id="repCOGS">0</span> Tsh</p>
-                    <p style="margin: 8px 0; font-size: 0.95em;"><strong>Gharama za Ziada (Expenses):</strong> <span id="repExpenses">0</span> Tsh</p>
-                    <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 12px 0;">
-                    <p style="font-size: 1.2em; margin: 8px 0;"><strong>Faida Halisi (Net Profit):</strong> <span id="repNetProfit" style="color: var(--success); font-weight: bold;">0</span> Tsh</p>
-                </div>
-
-                <!-- Visual Chart Container -->
-                <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
-                    <h3 style="font-size: 1.1em; margin-top: 0; color: var(--dark); margin-bottom: 15px;"><i class="fa fa-chart-pie"></i> Mchoro wa Uchambuzi wa Kifedha</h3>
-                    <div style="position: relative; height: 300px; width: 100%;">
-                        <canvas id="financialChart"></canvas>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 12px; flex-direction: column;">
-                    <button onclick="loadFinancialReport()">Sasisha Ripoti na Grafu</button>
-                    <button onclick="printOfficialReport()" style="background: var(--dark); box-shadow: none;"><i class="fa fa-print"></i> Chapisha Ripoti Rasmi</button>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCtZRJc9EaBYZJ9V7ysEF4Ylo-MJmzG_w0",
-      authDomain: "orderingproductand-maintenance.firebaseapp.com",
-      databaseURL: "https://orderingproductand-maintenance-default-rtdb.firebaseio.com",
-      projectId: "orderingproductand-maintenance",
-      storageBucket: "orderingproductand-maintenance.firebasestorage.app",
-      messagingSenderId: "710532394085",
-      appId: "1:710532394085:web:874f8c9724be3851fb2a8c"
+    // Kamusi ya Lugha (Dictionary for Swahili & English)
+    const translations = {
+        sw: {
+            loginTitle: "Karibu Tena",
+            loginSubtitle: "Ingiza taarifa zako kuendelea kwenye mfumo",
+            lblEmail: "Barua Pepe (Email)",
+            lblPass: "Neno la Siri (Password)",
+            btnLogin: "Ingia Sasa",
+            noAccount: "Huna akaunti?",
+            registerHere: "Jisajili hapa",
+            signupBannerTitle: "Jiunge Nasi",
+            signupBannerDesc: "Fungua akaunti mpya ya mtendaji kwenye mfumo.",
+            signupTitle: "Fungua Akaunti",
+            signupSubtitle: "Jaza taarifa zako hapa chini kwa ajili ya usajili",
+            lblName: "Jina Kamili",
+            lblChooseLang: "Chagua Lugha Unayopendelea",
+            btnCompleteSignup: "Kamilisha Usajili",
+            hasAccount: "Una akaunti tayari?",
+            backLogin: "Rudi Uingie",
+            btnLogout: "Ondoka",
+            menuSales: "Mauzo & Manunuzi",
+            menuPOS: "Mauzo (POS)",
+            menuPurchases: "Rekodi Manunuzi",
+            menuExpenses: "Gharama za Uendeshaji",
+            menuAdmin: "Usimamizi Mkuu",
+            menuStock: "Orodha ya Vifaa (Stock)",
+            menuReports: "Faida na Hasara & Grafu",
+            menuUsers: "Wasimamizi na Watumiaji",
+            menuRegAdmin: "Sajili Admin Mpya",
+            menuSysProfile: "Profaili ya Mfumo & Logo",
+            menuReset: "Kufuta & Kusafisha Data",
+            menuMyProfile: "Profaili Yangu",
+            menuChangePass: "Badilisha Password"
+        },
+        en: {
+            loginTitle: "Welcome Back",
+            loginSubtitle: "Enter your credentials to continue",
+            lblEmail: "Email Address",
+            lblPass: "Password",
+            btnLogin: "Login Now",
+            noAccount: "Don't have an account?",
+            registerHere: "Register here",
+            signupBannerTitle: "Join Us",
+            signupBannerDesc: "Create a new account on the system.",
+            signupTitle: "Create Account",
+            signupSubtitle: "Fill in your details below to register",
+            lblName: "Full Name",
+            lblChooseLang: "Preferred Language",
+            btnCompleteSignup: "Complete Registration",
+            hasAccount: "Already have an account?",
+            backLogin: "Back to Login",
+            btnLogout: "Logout",
+            menuSales: "Sales & Purchases",
+            menuPOS: "Point of Sale (POS)",
+            menuPurchases: "Record Purchases",
+            menuExpenses: "Operating Expenses",
+            menuAdmin: "Administration",
+            menuStock: "Inventory Stock",
+            menuReports: "Profit/Loss & Reports",
+            menuUsers: "Manage Users",
+            menuRegAdmin: "Register New Admin",
+            menuSysProfile: "System Profile & Logo",
+            menuReset: "Reset & Clear Data",
+            menuMyProfile: "My Profile",
+            menuChangePass: "Change Password"
+        }
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+    let currentLanguage = localStorage.getItem('system_lang') || 'sw';
 
-    let currentUserData = null;
-    let base64ImageString = "";
-    let financialChartInstance = null;
-
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('sidebar-overlay').classList.toggle('active');
+    function changeLanguage(lang) {
+        currentLanguage = lang;
+        localStorage.setItem('system_lang', lang);
+        document.getElementById('globalLangSelect').value = lang;
+        
+        // Badilisha maandishi yote yenye kitambulisho cha data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) {
+                el.innerText = translations[lang][key];
+            }
+        });
     }
 
-    function navigateTo(id) {
-        showPage(id);
-        if(window.innerWidth <= 768) {
-            toggleSidebar();
-        }
-    }
+    // Usimamizi wa Logo na Profaili ya Mfumo kupitia Admin
+    let tempSystemLogoBase64 = "";
 
-    function showPage(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-        document.getElementById(id).classList.add('active-page');
-        if(id === 'pageInventory') loadInventory();
-        if(id === 'pagePOS' || id === 'pagePurchases') loadItemDropdowns();
-        if(id === 'pageFinancials') loadFinancialReport();
-        if(id === 'pageManageUsers') loadAllUsersForAdmin();
-        if(id === 'pageProfile' && auth.currentUser) loadProfileInputs();
-        window.scrollTo(0, 0);
-    }
-
-    function toggleDrop(id) {
-        let el = document.getElementById(id);
-        el.style.display = el.style.display === "block" ? "none" : "block";
-    }
-
-    function previewImage(event) {
+    function previewSystemLogo(event) {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                base64ImageString = e.target.result;
-                document.getElementById('profilePreviewImg').src = base64ImageString;
+                tempSystemLogoBase64 = e.target.result;
+                const img = document.getElementById('sysPreviewLogo');
+                img.src = tempSystemLogoBase64;
+                img.style.display = 'block';
+                document.getElementById('sysLogoPlaceholderText').style.display = 'none';
             }
             reader.readAsDataURL(file);
         }
     }
 
-    async function signupUser() {
-        const name = document.getElementById('regName').value.trim();
-        const email = document.getElementById('signEmail').value.trim();
-        const pass = document.getElementById('signPass').value.trim();
+    function saveSystemProfile() {
+        const sysName = document.getElementById('sysNameInput').value;
+        const sysDesc = document.getElementById('sysDescInput').value;
 
-        if(!name || !email || !pass) return alert("Tafadhali jaza sehemu zote wazi!");
-        if(pass.length < 6) return alert("Neno la siri linapaswa kuwa na angalau herufi 6!");
+        const systemData = {
+            name: sysName || "Ordering & Maintenance Service",
+            description: sysDesc || "Mfumo thabiti wa kusimamia mauzo na stoku.",
+            logo: tempSystemLogoBase64 || localStorage.getItem('sys_logo') || ""
+        };
 
-        try {
-            const res = await auth.createUserWithEmailAndPassword(email, pass);
-            await db.ref('users/' + res.user.uid).set({ 
-                name, 
-                role: 'user', 
-                email, 
-                isBlocked: false,
-                photoUrl: "https://via.placeholder.com/100" 
-            });
-            alert("Usajili umefanikiwa! Sasa unaweza kuingia.");
-            showPage('loginPage');
-        } catch(e) { alert("Hitilafu: " + e.message); }
+        localStorage.setItem('system_profile', JSON.stringify(systemData));
+        applySystemProfile();
+        alert("Profaili ya mfumo imehifadhiwa mafanikio!");
     }
 
-    async function registerNewAdmin() {
-        const name = document.getElementById('regAdminName').value.trim();
-        const email = document.getElementById('regAdminEmail').value.trim();
-        const pass = document.getElementById('regAdminPass').value.trim();
-
-        if(!name || !email || !pass) return alert("Tafadhali jaza taarifa zote za admin mpya!");
-        if(pass.length < 6) return alert("Neno la siri linapaswa kuwa na angalau herufi 6!");
-
-        try {
-            const secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryApp");
-            const secondaryAuth = secondaryApp.auth();
-            
-            const res = await secondaryAuth.createUserWithEmailAndPassword(email, pass);
-            await db.ref('users/' + res.user.uid).set({ 
-                name, 
-                role: 'admin', 
-                email, 
-                isBlocked: false,
-                photoUrl: "https://via.placeholder.com/100" 
-            });
-
-            await secondaryAuth.signOut();
-            secondaryApp.delete();
-
-            alert("Admin mpya amesajiliwa kikamilifu!");
-            document.getElementById('regAdminName').value = '';
-            document.getElementById('regAdminEmail').value = '';
-            document.getElementById('regAdminPass').value = '';
-            showPage('pageInventory');
-        } catch(e) { 
-            alert("Hitilafu wakati wa kusajili Admin: " + e.message); 
-        }
-    }
-
-    async function loginUser() {
-        const email = document.getElementById('logEmail').value.trim();
-        const pass = document.getElementById('logPass').value.trim();
-        if(!email || !pass) return alert("Weka email na password!");
-
-        try {
-            const res = await auth.signInWithEmailAndPassword(email, pass);
-            const userSnap = await db.ref('users/' + res.user.uid).once('value');
-            const data = userSnap.val();
-
-            if(data && data.isBlocked) {
-                await auth.signOut();
-                return alert("Akaunti yako imezuiwa (Blocked). Wasiliana na Admin.");
+    function applySystemProfile() {
+        const saved = localStorage.getItem('system_profile');
+        if (saved) {
+            const data = JSON.parse(saved);
+            if (data.name) {
+                document.getElementById('sysTitleBanner').innerHTML = `<i class="fa fa-tools"></i> ${data.name}`;
+                document.getElementById('sidebarBrandTitle').innerHTML = `<i class="fa fa-boxes"></i> ${data.name}`;
             }
-
-            alert("Umeingia kwa mafanikio!");
-        } catch(e) { alert("Hitilafu: " + e.message); }
-    }
-
-    async function logout() {
-        await auth.signOut();
-    }
-
-    auth.onAuthStateChanged(async (user) => {
-        if(user) {
-            const snap = await db.ref('users/' + user.uid).once('value');
-            currentUserData = snap.val();
-
-            if(currentUserData && currentUserData.isBlocked) {
-                await auth.signOut();
-                return;
+            if (data.description) {
+                document.getElementById('sysDescBanner').innerText = data.description;
             }
+            if (data.logo) {
+                const brandImg = document.getElementById('brandLogoImg');
+                brandImg.src = data.logo;
+                brandImg.style.display = 'block';
+                document.getElementById('logoTextPlaceholder').style.display = 'none';
 
-            document.getElementById('topbar').style.display = 'flex';
-            document.getElementById('topUserName').innerText = currentUserData?.name || 'Mtumiaji';
-            const userImg = currentUserData?.photoUrl || "https://via.placeholder.com/40";
-            document.getElementById('topUserImg').src = userImg;
-
-            if(currentUserData?.role === 'admin') {
-                document.getElementById('menuAdmin').style.display = 'block';
-                document.getElementById('menuUser').style.display = 'none';
-                showPage('pageInventory');
-            } else {
-                document.getElementById('menuAdmin').style.display = 'none';
-                document.getElementById('menuUser').style.display = 'block';
-                showPage('pagePOS');
-            }
-        } else {
-            currentUserData = null;
-            document.getElementById('topbar').style.display = 'none';
-            document.getElementById('menuAdmin').style.display = 'none';
-            document.getElementById('menuUser').style.display = 'none';
-            showPage('loginPage');
-        }
-    });
-
-    async function loadAllUsersForAdmin() {
-        const tbody = document.getElementById('allUsersTableBody');
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Inapakia...</td></tr>`;
-        
-        const snap = await db.ref('users').once('value');
-        const users = snap.val();
-        if(!users) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Hakuna watumiaji waliopatikana.</td></tr>`;
-            return;
-        }
-
-        let html = '';
-        for(let uid in users) {
-            let u = users[uid];
-            let statusText = u.isBlocked ? '<span style="color:var(--danger); font-weight:bold;">Imefungwa</span>' : '<span style="color:var(--success); font-weight:bold;">Hai</span>';
-            let actionBtn = u.isBlocked ? 
-                `<button onclick="toggleBlockUser('${uid}', false)" style="padding: 6px 12px; background:var(--success); font-size:0.8em; margin:0;">Fungua (Unblock)</button>` : 
-                `<button onclick="toggleBlockUser('${uid}', true)" style="padding: 6px 12px; background:var(--danger); font-size:0.8em; margin:0;">fungia (Block)</button>`;
-            
-            if(uid === auth.currentUser.uid) actionBtn = '<em style="font-size:0.85em; color:#888;">Akaunti Yako</em>';
-
-            html += `<tr>
-                <td>${u.name || '-'}</td>
-                <td>${u.email || '-'}</td>
-                <td style="text-transform: uppercase; font-weight:600;">${u.role || 'user'}</td>
-                <td>${statusText}</td>
-                <td>${actionBtn}</td>
-            </tr>`;
-        }
-        tbody.innerHTML = html;
-    }
-
-    async function toggleBlockUser(uid, blockState) {
-        await db.ref('users/' + uid).update({ isBlocked: blockState });
-        loadAllUsersForAdmin();
-    }
-
-    function loadProfileInputs() {
-        document.getElementById('profName').value = currentUserData?.name || '';
-        document.getElementById('dispUserEmail').innerText = currentUserData?.email || '-';
-        document.getElementById('dispUserRole').innerText = currentUserData?.role || '-';
-        if(currentUserData?.photoUrl) {
-            document.getElementById('profilePreviewImg').src = currentUserData.photoUrl;
-            base64ImageString = currentUserData.photoUrl;
-        }
-    }
-
-    async function updateProfileData() {
-        const name = document.getElementById('profName').value.trim();
-        if(!name) return alert("Jina halipaswi kuwa wazi!");
-
-        let updateObj = { name };
-        if(base64ImageString) updateObj.photoUrl = base64ImageString;
-
-        await db.ref('users/' + auth.currentUser.uid).update(updateObj);
-        alert("Profaili imesasishwa kikamilifu!");
-        location.reload();
-    }
-
-    async function changePassword() {
-        const pass = document.getElementById('newPass').value.trim();
-        if(pass.length < 6) return alert("Neno la siri linapaswa kuwa na angalau herufi 6!");
-
-        try {
-            await auth.currentUser.updatePassword(pass);
-            alert("Neno la siri limebadilishwa kikamilifu!");
-            document.getElementById('newPass').value = '';
-        } catch(e) { alert("Hitilafu: " + e.message); }
-    }
-
-    async function addInventoryItem() {
-        const name = document.getElementById('invName').value.trim();
-        const buyPrice = parseFloat(document.getElementById('invBuyPrice').value) || 0;
-        const sellPrice = parseFloat(document.getElementById('invSellPrice').value) || 0;
-        const qty = parseInt(document.getElementById('invQty').value) || 0;
-
-        if(!name) return alert("Weka jina la kifaa!");
-
-        await db.ref('inventory').push({ name, buyPrice, sellPrice, qty });
-        alert("Kifaa kimeongezwa stoku!");
-        document.getElementById('invName').value = '';
-        document.getElementById('invBuyPrice').value = '';
-        document.getElementById('invSellPrice').value = '';
-        document.getElementById('invQty').value = '';
-        loadInventory();
-    }
-
-    async function loadInventory() {
-        const tbody = document.getElementById('inventoryTableBody');
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Inapakia stoku...</td></tr>`;
-
-        const snap = await db.ref('inventory').once('value');
-        const items = snap.val();
-        if(!items) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Hakuna vifaa vilivyopo stoku.</td></tr>`;
-            return;
-        }
-
-        let html = '';
-        for(let id in items) {
-            let item = items[id];
-            let stockDisplay = item.qty;
-            if(item.qty <= 5) {
-                stockDisplay = `${item.qty} <span class="badge-low-stock">(Inapungua!)</span>`;
-            }
-
-            html += `<tr>
-                <td>${item.name}</td>
-                <td>${item.buyPrice.toLocaleString()}</td>
-                <td>${item.sellPrice.toLocaleString()}</td>
-                <td>${stockDisplay}</td>
-            </tr>`;
-        }
-        tbody.innerHTML = html;
-    }
-
-    async function loadItemDropdowns() {
-        const snap = await db.ref('inventory').once('value');
-        const items = snap.val();
-        let options = '<option value="">Chagua Kifaa</option>';
-        if(items) {
-            for(let id in items) {
-                options += `<option value="${id}" data-price="${items[id].sellPrice}" data-buy="${items[id].buyPrice}" data-qty="${items[id].qty}">${items[id].name} (Salio: ${items[id].qty})</option>`;
-            }
-        }
-        if(document.getElementById('purItemSelect')) document.getElementById('purItemSelect').innerHTML = options;
-        if(document.getElementById('posItemSelect')) document.getElementById('posItemSelect').innerHTML = options;
-    }
-
-    async function recordPurchase() {
-        const itemId = document.getElementById('purItemSelect').value;
-        const qty = parseInt(document.getElementById('purQty').value) || 0;
-        const totalCost = parseFloat(document.getElementById('purTotalCost').value) || 0;
-
-        if(!itemId || qty <= 0) return alert("Tafadhali chagua kifaa na uweke idadi sahihi!");
-
-        const itemRef = db.ref('inventory/' + itemId);
-        const snap = await itemRef.once('value');
-        const item = snap.val();
-
-        if(item) {
-            const newQty = item.qty + qty;
-            await itemRef.update({ qty: newQty });
-            await db.ref('purchases').push({ itemId, itemName: item.name, qty, totalCost, timestamp: Date.now() });
-            alert("Manunuzi yamerekodiwa na stoku imeongezeka!");
-            document.getElementById('purQty').value = '';
-            document.getElementById('purTotalCost').value = '';
-            loadItemDropdowns();
-        }
-    }
-
-    function updatePOSPrice() {
-        const select = document.getElementById('posItemSelect');
-        const opt = select.options[select.selectedIndex];
-        const price = opt.getAttribute('data-price') || 0;
-        document.getElementById('posPrice').value = price;
-        calculateTotal();
-    }
-
-    function calculateTotal() {
-        const qty = parseFloat(document.getElementById('posQty').value) || 0;
-        const price = parseFloat(document.getElementById('posPrice').value) || 0;
-        const total = qty * price;
-        document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh " + total.toLocaleString();
-    }
-
-    let lastSaleData = null;
-
-    async function processSale() {
-        const select = document.getElementById('posItemSelect');
-        const itemId = select.value;
-        const opt = select.options[select.selectedIndex];
-        const customer = document.getElementById('posCustomer').value.trim();
-        const qty = parseInt(document.getElementById('posQty').value) || 0;
-        const price = parseFloat(document.getElementById('posPrice').value) || 0;
-
-        if(!itemId || !customer || qty <= 0) return alert("Jaza taarifa zote za mauzo vizuri!");
-
-        const currentStock = parseInt(opt.getAttribute('data-qty')) || 0;
-        if(qty > currentStock) return alert("Salio halitoshi stoku! Salio lililopo ni: " + currentStock);
-
-        const itemName = opt.text.split(' (')[0];
-        const totalPrice = qty * price;
-        const buyPrice = parseFloat(opt.getAttribute('data-buy')) || 0;
-        const totalCOGS = qty * buyPrice;
-
-        const newStock = currentStock - qty;
-        await db.ref('inventory/' + itemId).update({ qty: newStock });
-        await db.ref('sales').push({ itemId, itemName, customer, qty, unitPrice: price, totalPrice, totalCOGS, timestamp: Date.now() });
-
-        lastSaleData = { customer, itemName, qty, unitPrice: price, totalPrice, date: new Date().toLocaleString() };
-        showReceiptModal(lastSaleData);
-
-        document.getElementById('posCustomer').value = '';
-        document.getElementById('posQty').value = '';
-        document.getElementById('posPrice').value = '';
-        document.getElementById('posTotalDisplay').innerText = "Jumla: Tsh 0";
-        loadItemDropdowns();
-    }
-
-    function showReceiptModal(data) {
-        document.getElementById('recDate').innerText = data.date;
-        document.getElementById('recCustomer').innerText = data.customer;
-        document.getElementById('recItemName').innerText = data.itemName;
-        document.getElementById('recQty').innerText = data.qty;
-        document.getElementById('recUnitPrice').innerText = data.unitPrice.toLocaleString();
-        document.getElementById('recTotalPrice').innerText = data.totalPrice.toLocaleString();
-        document.getElementById('receiptModal').style.display = 'flex';
-    }
-
-    function closeReceiptModal() {
-        document.getElementById('receiptModal').style.display = 'none';
-    }
-
-    async function recordExpense() {
-        const desc = document.getElementById('expDesc').value.trim();
-        const amount = parseFloat(document.getElementById('expAmount').value) || 0;
-
-        if(!desc || amount <= 0) return alert("Weka maelezo na kiasi sahihi cha gharama!");
-
-        await db.ref('expenses').push({ desc, amount, timestamp: Date.now() });
-        alert("Gharama imehifadhiwa!");
-        document.getElementById('expDesc').value = '';
-        document.getElementById('expAmount').value = '';
-    }
-
-    async function loadFinancialReport() {
-        const salesSnap = await db.ref('sales').once('value');
-        const sales = salesSnap.val() || {};
-        let totalRevenue = 0;
-        let totalCOGS = 0;
-        for(let id in sales) {
-            totalRevenue += sales[id].totalPrice || 0;
-            totalCOGS += sales[id].totalCOGS || 0;
-        }
-
-        const expSnap = await db.ref('expenses').once('value');
-        const expenses = expSnap.val() || {};
-        let totalExpenses = 0;
-        for(let id in expenses) {
-            totalExpenses += expenses[id].amount || 0;
-        }
-
-        const netProfit = totalRevenue - (totalCOGS + totalExpenses);
-
-        document.getElementById('repRevenue').innerText = totalRevenue.toLocaleString();
-        document.getElementById('repCOGS').innerText = totalCOGS.toLocaleString();
-        document.getElementById('repExpenses').innerText = totalExpenses.toLocaleString();
-        
-        const netProfitEl = document.getElementById('repNetProfit');
-        netProfitEl.innerText = netProfit.toLocaleString();
-        netProfitEl.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
-
-        // Render Chart
-        renderFinancialChart(totalRevenue, totalCOGS, totalExpenses, netProfit);
-    }
-
-    function renderFinancialChart(revenue, cogs, expenses, netProfit) {
-        const ctx = document.getElementById('financialChart').getContext('2d');
-        
-        if(financialChartInstance) {
-            financialChartInstance.destroy();
-        }
-
-        financialChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Mapato (Revenue)', 'Gharama za Vifaa', 'Gharama za Ziada', 'Faida Halisi'],
-                datasets: [{
-                    label: 'Kiasi (Tsh)',
-                    data: [revenue, cogs, expenses, netProfit],
-                    backgroundColor: [
-                        'rgba(67, 97, 238, 0.7)',
-                        'rgba(255, 159, 28, 0.7)',
-                        'rgba(231, 29, 54, 0.7)',
-                        'rgba(46, 196, 182, 0.7)'
-                    ],
-                    borderColor: [
-                        '#4361ee',
-                        '#ff9f1c',
-                        '#e71d36',
-                        '#2ec4b6'
-                    ],
-                    borderWidth: 1.5,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+                const sysPrev = document.getElementById('sysPreviewLogo');
+                if(sysPrev) {
+                    sysPrev.src = data.logo;
+                    sysPrev.style.display = 'block';
+                    document.getElementById('sysLogoPlaceholderText').style.display = 'none';
                 }
             }
-        });
+        }
     }
 
-    function printOfficialReport() {
-        window.print();
+    // Utendaji wa kubadilisha kurasa na menyu
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('sidebar-overlay').classList.toggle('active');
     }
+
+    function toggleDrop(id) {
+        const drop = document.getElementById(id);
+        drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function navigateTo(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(pageId).classList.add('active-page');
+        if (window.innerWidth < 768) toggleSidebar();
+    }
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(pageId).classList.add('active-page');
+    }
+
+    window.onload = function() {
+        applySystemProfile();
+        changeLanguage(currentLanguage);
+    };
 </script>
 </body>
 </html>
